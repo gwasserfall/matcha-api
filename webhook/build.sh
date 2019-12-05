@@ -1,0 +1,1 @@
+echo "Some output here"

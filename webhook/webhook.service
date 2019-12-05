@@ -5,7 +5,7 @@ After=network.target
 [Service]
 User=pi
 WorkingDirectory=/home/pi/matcha/webhook
-ExecStart=uwsgi --ini myproject.ini
+ExecStart=uwsgi --ini webhook.ini
 
 [Install]
 WantedBy=multi-user.target
