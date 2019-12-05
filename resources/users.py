@@ -5,8 +5,9 @@ class UserList(Resource):
     def get(self):
         user = User()
 
-        user.get(id="1")
-        return {'hello'}
+        user.filter()
+
+        return {'hello' : "how are you"}
 
     def post(self):
         parser = reqparse.RequestParser()
@@ -23,6 +24,10 @@ class UserList(Resource):
 
         args = parser.parse_args()
         from pprint import pprint
+        
+        if not args:
+            return {"message" : "No args"}, 400
+
         new = User().create(**args)
         if (new.insert()):
             pprint(new.to_dict())

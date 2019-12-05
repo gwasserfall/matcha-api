@@ -1,4 +1,9 @@
-import records
+import pymysql
+import config
 
-db = records.Database('sqlite:///database.sqlite3')
+# Connect to the database
+connection = pymysql.connect(**config.database)
 
+class Model(object):
+	def __init__(self):
+		self.db = connection

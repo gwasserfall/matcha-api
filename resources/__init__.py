@@ -1,3 +1,3 @@
-# from users import UserList
+from resources.users import UserList
 
-# __all__ = ["UserList"]
+__all__ = ["UserList"]

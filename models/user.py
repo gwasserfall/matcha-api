@@ -1,8 +1,8 @@
-import uuid
 import hashlib
-from pymysql.err import IntegrityError
+import uuid
 
-from models.model import Model
+from pymysql.err import IntegrityError
+from models import Model
 from pprint import pprint
 
 class User(Model):
@@ -24,6 +24,19 @@ class User(Model):
 		self.fame = 0
 		self.online = ""
 		self.date_lastseen = ""
+
+
+	def filter(self, **kwargs):
+		if kwargs:
+			where = ", ".join(["{0}={1}" for x,y in kwargs.items()])
+		else:
+			where = ""
+
+		with self.db.cursor() as c:
+			c.execute("""
+			
+			""")
+
 
 	def get(self, **kwargs):
 
@@ -79,8 +92,7 @@ class User(Model):
 	def to_dict(self):
 		return {key : value for key, value in self.__dict__.items() 
 			if key not in ["db", "id", "date_lastseen", "online"]
-			and value
-			}
+			and value}
 
 	def insert(self):
 		query = self.insert_query()
