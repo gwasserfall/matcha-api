@@ -1,0 +1,11 @@
+[Unit]
+Description=Github Webhook Listener
+After=network.target
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/matcha/webhook
+ExecStart=uwsgi --ini myproject.ini
+
+[Install]
+WantedBy=multi-user.target
