@@ -1,2 +1,0 @@
-class Field(object):
-	pass

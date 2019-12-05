@@ -1,12 +1,11 @@
 from flask import Flask
 from flask_restful import Resource, Api
 
-from resources.users import UserList
+from resources import UserList
 
 app = Flask(__name__)
-api = Api(app)
 
-# db = records.Database('sqlite:///database.sqlite3')
+api = Api(app)
 
 api.add_resource(UserList, '/users')
 
