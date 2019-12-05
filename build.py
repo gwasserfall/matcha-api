@@ -23,12 +23,12 @@ def webhook():
 		github_sig = request.headers.get('X-Hub-Signature')
 
 		if github_sig == signature:
-			return "Ok"
+			return "OK", 200
 		else:
-			return "Who are you?"
+			return "Who are you?", 500
 
 	except Exception as e:
-		return "404 Not Found"
+		return "404 Not Found", 404
 
 if __name__ == '__main__':
     app.run(debug=True, port=9999)
