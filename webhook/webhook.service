@@ -4,6 +4,7 @@ After=network.target
 
 [Service]
 User=pi
+Group=www-data
 WorkingDirectory=/home/pi/matcha/webhook
 ExecStart=uwsgi --ini webhook.ini
 
