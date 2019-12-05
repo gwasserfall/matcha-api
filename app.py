@@ -5,7 +5,7 @@ from resources import UserList
 
 app = Flask(__name__)
 
-api = Api(app)
+api = Api(app, prefix='/v1')
 
 api.add_resource(UserList, '/users')
 
