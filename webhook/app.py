@@ -27,7 +27,10 @@ def webhook():
 			except CalledProcessError as e:
 				out = e.output
 
-			send_email(out)
+			with open("debug.txt", "w") as f:
+				f.write(out)
+
+			#send_email(out)
 			return "OK", 200
 		else:
 			return "NO", 401
