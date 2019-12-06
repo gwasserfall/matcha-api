@@ -38,9 +38,9 @@ def send_email(output):
 		server.sendmail(sent_from, to, email_text)
 		server.close()
 
-		print 'Email sent!!'
+		print ('Email sent!!')
 	except:
-		print 'Something went wrong...'
+		print ('Something went wrong...')
 
 @app.route('/611f19e75e9a482ecbafee68509d16e2a708711c3a311d95c4106ee7c4ab4c6c', methods=["POST"])
 def webhook():
