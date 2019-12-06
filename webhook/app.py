@@ -22,13 +22,14 @@ def webhook():
 		github_sig = request.headers.get('X-Hub-Signature')
 
 		# if github_sig == signature:
+
 		try: 
 			out = check_output(["/bin/sh", "./build.sh"], stderr=STDOUT)
 		except CalledProcessError as e:
 			out = e.output
 
-		#send_email(out)
-		return "OK", 200
+		send_email(out)
+		return "OK {0} <br>\n {1}".format(github_sig, signature), 200
 		# else:
 		# 	return "NO", 401
 
