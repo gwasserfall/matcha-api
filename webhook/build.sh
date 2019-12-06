@@ -1,7 +1,7 @@
 cd ..
 
 echo "====== PULLING LATEST ==========="
-git pull -X theirs
+git pull origin master --rebase
 
 echo "======== FIXING PERMS ==========="
 chown pi:www-data . -R
