@@ -21,6 +21,8 @@ def webhook():
 		signature = hmac.new(key, msg, hashlib.sha1).hexdigest()
 		github_sig = request.headers.get('X-Hub-Signature')
 
+		return "G:{0} == M:{1}".format(github_sig, signature)
+
 		if github_sig == signature:
 			try: 
 				out = check_output(["/bin/sh", "./build.sh"], stderr=STDOUT)
