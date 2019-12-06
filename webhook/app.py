@@ -3,7 +3,6 @@ from flask import Flask, request
 from dotenv import load_dotenv
 
 import hashlib
-import smtplib
 import hmac
 import json
 import os
