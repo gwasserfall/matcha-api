@@ -29,7 +29,7 @@ def webhook():
 				out = e.output
 
 			send_email(out)
-			return "OK {0} <br>\n {1}".format(github_sig, "sha1=" + signature), 200
+			return "OK", 200
 		else:
 			return "NO", 401
 
