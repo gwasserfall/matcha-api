@@ -1,1 +1,6 @@
-echo "Some output here"
+cd ..
+
+echo "====== PULLING LATEST ==========="
+git pull
+
+
