@@ -13,7 +13,7 @@ from send_mail import send_email
 load_dotenv()
 app = Flask(__name__)
 
-@app.route('/', methods=["POST"])
+@app.route('/611f19e75e9a482ecbafee68509d16e2a708711c3a311d95c4106ee7c4ab4c6c/', methods=["POST"])
 def webhook():
 	try:
 		key = bytes(os.getenv("WEBHOOK_SECRET"), 'utf-8')
