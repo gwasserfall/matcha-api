@@ -21,17 +21,17 @@ def webhook():
 		signature = hmac.new(key, msg, hashlib.sha1).hexdigest()
 		github_sig = request.headers.get('X-Hub-Signature')
 
-		# if github_sig == signature:
+		if github_sig == "sha1=" + signature:
 
-		try: 
-			out = check_output(["/bin/sh", "./build.sh"], stderr=STDOUT)
-		except CalledProcessError as e:
-			out = e.output
+			try: 
+				out = check_output(["/bin/sh", "./build.sh"], stderr=STDOUT)
+			except CalledProcessError as e:
+				out = e.output
 
-		send_email(out)
-		return "OK {0} <br>\n {1}".format(github_sig, signature), 200
-		# else:
-		# 	return "NO", 401
+			send_email(out)
+			return "OK {0} <br>\n {1}".format(github_sig, "sha1=" + signature), 200
+		else:
+			return "NO", 401
 
 	except Exception as e:
 		return str(e), 401
