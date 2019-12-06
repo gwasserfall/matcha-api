@@ -1,3 +1,5 @@
+import os
+
 def send_email(output):
 	gmail_user = os.getenv("GMAIL_USER")
 	gmail_password = os.getenv("GMAIL_PASS")
