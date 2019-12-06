@@ -1,10 +1,12 @@
+from dotenv import load_dotenv
+
 import os
+
+load_dotenv()
 
 def send_email(output):
 	gmail_user = os.getenv("GMAIL_USER")
 	gmail_password = os.getenv("GMAIL_PASS")
-
-	print ("sending email")
 
 	sent_from = gmail_user
 	to = [gmail_user]
