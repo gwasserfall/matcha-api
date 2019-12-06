@@ -12,7 +12,7 @@ def send_email(output):
 	sent_from = gmail_user
 	to = [gmail_user]
 	subject = 'Matcha:: Build Report'
-	body = output
+	body = output.replace("\n", "<br>")
 
 	email_text = """\
 	From: %s
