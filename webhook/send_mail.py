@@ -29,5 +29,6 @@ def send_email(output):
 		server.close()
 
 		print ('Test Email sent!!')
-	except:
+	except Exception as e:
+		print (e)
 		print ('Something went wrong...Yoink')
