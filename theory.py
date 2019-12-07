@@ -41,7 +41,7 @@ class User():
 			pprint(c.fetchall())
 
 
-class ValidationException(Exception):
+class ValidationError(Exception):
 	pass
 
 class Column(dict):
@@ -61,6 +61,22 @@ class Column(dict):
 		pass
 
 
-c = Column("string")
 
-print(c)
+
+users = Users.getmany(username="%a%")
+
+user = Users.get(email="asda@asd.com")
+
+user = Users.create(**kwargs)
+
+user.name = "whatever"
+
+try:
+	user.save()
+except ValidationException as e:
+	return {"message" : e}, 401
+
+if user.delete():
+	return {}, 201
+else:
+	return {"message" : e}, 401
