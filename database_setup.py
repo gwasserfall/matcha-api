@@ -19,7 +19,7 @@ with db.cursor() as c:
 			age				INT,
 			longitude		DECIMAL(11, 8),
 			latitude		DECIMAL(11, 8),
-			fame			TINYINT				DEFAULT (0),
+			heat			INT					DEFAULT (0),
 			online			TINYINT				DEFAULT (0),
 			date_joined		TIMESTAMP		DEFAULT CURRENT_TIMESTAMP,
 			date_lastseen	TIMESTAMP		DEFAULT CURRENT_TIMESTAMP
