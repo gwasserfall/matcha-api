@@ -5,9 +5,8 @@ import config
 connection = pymysql.connect(**config.database)
 
 class Model(object):
-	def __init__(self):
-		self.db = connection
-
+	db = connection
+	
 	def save(self):
 		with self.db.cursor() as c:
 			pass

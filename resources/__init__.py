@@ -1,3 +1,6 @@
-from resources.users import UserList
+from resources.users import UserListResource
+from resources.users import UserResource
 
-__all__ = ["UserList"]
+from resources.login import LoginResource
+
+__all__ = ["UserListResource", "UserResource", "LoginResource"]
