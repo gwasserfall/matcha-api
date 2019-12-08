@@ -38,16 +38,16 @@ with db.cursor() as c:
 	# """)
 
 
-	# print("Creating table user_preference")
+	# print("Creating table user_preferences")
 	# c.execute("""
-	# 	CREATE TABLE IF NOT EXISTS user_preference
+	# 	CREATE TABLE IF NOT EXISTS user_preferences
 	# 	(
 	# 		id			INT AUTO_INCREMENT PRIMARY KEY,
 	# 		user_id		INTEGER				NOT NULL,
 	# 		interests	TEXT,
-	# 		gender		TEXT,
+	#		gender		ENUM('male', 'female', 'other'),
 	# 		radius		INTEGER,
-	# 		age_from	INTEGER				DESFULT (18),
+	# 		age_from	INTEGER				DEFAULT (18),
 	# 		age_to		INTEGER				DEFAULT (122)
 	# 	)
 	# """)
@@ -63,7 +63,7 @@ with db.cursor() as c:
 # """)
 
 # db.query("""
-# 	CREATE TABLE IF NOT EXISTS match
+# 	CREATE TABLE IF NOT EXISTS matches
 # 	(
 # 		id			INTEGER				AUTO INCREMENT,
 # 		date		DATETIME			DEFAULT CURRENT_TIMESTAMP,
@@ -73,7 +73,7 @@ with db.cursor() as c:
 # """)
 
 # db.query("""
-# 	CREATE TABLE IF NOT EXISTS user_block
+# 	CREATE TABLE IF NOT EXISTS user_blocks
 # 	(
 # 		id			INTEGER				AUTO INCREMENT,
 # 		date		DATETIME			DEFAULT CURRENT_TIMESTAMP,
@@ -84,7 +84,7 @@ with db.cursor() as c:
 # """)
 
 # db.query("""
-# 	CREATE TABLE IF NOT EXISTS notification
+# 	CREATE TABLE IF NOT EXISTS notifications
 # 	(
 # 		id			INTEGER				AUTO INCREMENT,
 # 		type		TEXT,
@@ -93,3 +93,17 @@ with db.cursor() as c:
 # 		recieved	INTEGER				DEFAULT 0
 # 	)
 # """)
+
+# db.query("""
+# 	CREATE TABLE IF NOT EXISTS messages
+# 	(
+# 		id			INTEGER				AUTO INCREMENT,
+# 		user_id		INTEGER,
+#		from_id		INT,
+# 		message		TEXT,
+# 		read		INTEGER				DEFAULT 0
+# 	)
+# """)
+
+
+

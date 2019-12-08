@@ -1,82 +1,100 @@
-from pymysql.cursors import DictCursor
+# from pymysql.cursors import DictCursor
 
-from pprint import pprint
+# from pprint import pprint
 
-from pypika import Query, Table, Field
+# from pypika import Query, Table, Field
 
-import pymysql
+# import pymysql
 
-database = {
-	"host"			:'127.0.0.1',
-	"user"			:'root',
-	"password"		:'password',
-	"db"			: 'matcha',
-	"charset"		: 'utf8mb4',
-	"cursorclass"	: DictCursor
-}
+# database = {
+# 	"host"			:'127.0.0.1',
+# 	"user"			:'root',
+# 	"password"		:'password',
+# 	"db"			: 'matcha',
+# 	"charset"		: 'utf8mb4',
+# 	"cursorclass"	: DictCursor
+# }
 
-# Connect to the database
-db = pymysql.connect(**database)
+# # Connect to the database
+# db = pymysql.connect(**database)
 
-class User():
-	def __init__(self):
-		self.db = db
+# class User():
+# 	def __init__(self):
+# 		self.db = db
 
-	@staticmethod
-	def filter(**kwargs):
-		if kwargs:
-			where = ", ".join(["{0}={1}".format(x,y) for x,y in kwargs.items()])
-		else:
-			where = None
+# 	@staticmethod
+# 	def filter(**kwargs):
+# 		if kwargs:
+# 			where = ", ".join(["{0}={1}".format(x,y) for x,y in kwargs.items()])
+# 		else:
+# 			where = None
 
-		table = Table("users")
+# 		table = Table("users")
 
-		with db.cursor() as c:
-			q = Query.from_(table).select("*").where(table['username'].like("%ass"))
+# 		with db.cursor() as c:
+# 			q = Query.from_(table).select("*").where(table['username'].like("%ass"))
 
-			print(q)
+# 			print(q)
 
-			c.execute(q.get_sql(quote_char=False))
-			print(c._last_executed)
-			pprint(c.fetchall())
-
-
-class ValidationError(Exception):
-	pass
-
-class Column(dict):
-
-	value = None
-
-	def __init__(self, type_of, default=None, length=255):
-		pass
-
-	def __getattribute__(self, name):
-		return "asd"
-
-	def __getitem__(self, name):
-		return "asd"
-
-	def __setattr__(self, name, value):
-		pass
+# 			c.execute(q.get_sql(quote_char=False))
+# 			print(c._last_executed)
+# 			pprint(c.fetchall())
 
 
+# class ValidationError(Exception):
+# 	pass
+
+# class Column(dict):
+
+# 	value = None
+
+# 	def __init__(self, type_of, default=None, length=255):
+# 		pass
+
+# 	def __getattribute__(self, name):
+# 		return "asd"
+
+# 	def __getitem__(self, name):
+# 		return "asd"
+
+# 	def __setattr__(self, name, value):
+# 		pass
 
 
-users = Users.getmany(username="%a%")
 
-user = Users.get(email="asda@asd.com")
 
-user = Users.create(**kwargs)
+# users = Users.getmany(username="%a%")
 
-user.name = "whatever"
+# user = Users.get(email="asda@asd.com")
 
-try:
-	user.save()
-except ValidationException as e:
-	return {"message" : e}, 401
+# user = Users.create(**kwargs)
 
-if user.delete():
-	return {}, 201
-else:
-	return {"message" : e}, 401
+# user.name = "whatever"
+
+# try:
+# 	user.save()
+# except ValidationException as e:
+# 	return {"message" : e}, 401
+
+# if user.delete():
+# 	return {}, 201
+# else:
+# 	return {"message" : e}, 401
+
+# from json import JSONEncoder
+# import simplejson as json
+
+# class A(dict):
+#     pass
+
+
+# a = A()
+
+# a["asd"] = "asd"
+
+# print(json.dumps(a))
+
+import re
+
+
+print(re.match("[a-z]", "asd"))

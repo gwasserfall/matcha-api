@@ -1,30 +1,31 @@
 import hashlib
 import uuid
 
+from pprint import pprint
+
 from pymysql.err import IntegrityError
 from models import Model
-from pprint import pprint
 
 class User(Model):
 	
-	def __init__(self):
-		super().__init__()
+	def __init__(self, **kwargs):
 
-		self.id = ""
-		self.fname = ""
-		self.lname = ""
-		self.email = ""
-		self.username = ""
-		self.passhash = ""
-		self.bio = ""
-		self.gender = ""
-		self.age = ""
-		self.longitude = ""
-		self.latitude = ""
-		self.fame = 0
-		self.online = ""
-		self.date_lastseen = ""
+		self.id = kwargs.get("id", None)
+		self.fname = kwargs.get("fname", None)
+		self.lname = kwargs.get("lname", None)
+		self.email = kwargs.get("email", None)
+		self.username = kwargs.get("username", None)
 
+		self.passhash = kwargs.get("passhash", None)
+		
+		self.bio = kwargs.get("bio", None)
+		self.gender = kwargs.get("gender", None)
+		self.age = kwargs.get("age", None)
+		self.longitude = kwargs.get("longitude", None)
+		self.latitude = kwargs.get("latitude", None)
+		self.heat = kwargs.get("heat", None)
+		self.online = kwargs.get("online", None)
+		self.date_lastseen = None
 
 	def filter(self, **kwargs):
 		if kwargs:
@@ -34,27 +35,38 @@ class User(Model):
 
 		with self.db.cursor() as c:
 			c.execute("""
-			
-			""")
+				SELECT * FROM users %s
+			""", where)
+
+	@classmethod
+	def get(cls, **kwargs):
+
+		if len(kwargs) > 1:
+			return False
+
+		key = next(iter(kwargs))
+		val = kwargs[key]
 
 
-	def get(self, **kwargs):
-
-		with self.db.cursor() as c:
+		with cls.db.cursor() as c:
 
 			c.execute("""
 				SELECT 
-					id, fname, lname, email, username,
+					id, fname, lname, email, username, passhash,
 					bio, gender, age, longitude, latitude,
-					fame, online, date_lastseen, date_joined,
+					fame, date_lastseen, date_joined,
 					online
 				FROM 
 					users 
 				WHERE 
-					username=%s""", self.username)
+					{}=%s""".format(key), (val,))
 
-			self.create(**c.fetchone())
-		return True
+			print("QUERY :: {}".format(c._last_executed))
+			print(cls.hash_password(cls, "AS$hat11"))
+
+			data = c.fetchone()
+			pprint(data)			
+		return User(**data) if data else False
 
 	def create(self, **kwargs):
 		for key, value in kwargs.items():
@@ -86,15 +98,15 @@ class User(Model):
 		return hashlib.sha256(salt.encode() + password.encode()).hexdigest() + ':' + salt
 		
 	def check_password(self, password):
-		password, salt = hashed_password.split(':')
-		return self.passhash == hashlib.sha256(salt.encode() + password.encode()).hexdigest()
+		pw, salt = self.passhash.split(':')
+		return pw == hashlib.sha256(salt.encode() + password.encode()).hexdigest()
 
 	def to_dict(self):
 		return {key : value for key, value in self.__dict__.items() 
-			if key not in ["db", "id", "date_lastseen", "online"]
+			if key not in ["db", "passhash"]
 			and value}
 
-	def insert(self):
+	def save(self):
 		query = self.insert_query()
 	
 		try:

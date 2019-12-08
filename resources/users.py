@@ -1,35 +1,50 @@
-from flask_restful import Resource, reqparse
+from flask import request
+from flask_restful import Resource, abort
+from flask_jwt_extended import jwt_required
+
 from models.user import User
 
-class UserList(Resource):
-    def get(self):
-        user = User()
+from helpers import Arguments
 
-        user.filter()
+from pprint import pprint
 
-        return {'hello' : "how are you"}
+class UserListResource(Resource):
 
     def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('fname', type=str, help='First name required', required=True)
-        parser.add_argument('lname', type=str, help='Last name required', required=True)
-        parser.add_argument('email', type=str, help='Email is required', required=True)
-        parser.add_argument('password', type=str, help='Password is required', required=True)
-        parser.add_argument('username', type=str, help='Username is required', required=True)
-        parser.add_argument('gender', type=str, help='Gender is required', required=True)
-        parser.add_argument('bio', type=str, help='Bio must be a string')
-        parser.add_argument('age', type=int, help='Age is required', required=True)
-        parser.add_argument('longitude', type=str)
-        parser.add_argument('latitude', type=str)
 
-        args = parser.parse_args()
+        args = Arguments(request.json)
+
+        args.string("fname", required=True)
+        args.string("lname", required=True)
+        args.email("email", required=True)
+        args.string("password", required=True)
+        args.string("username", required=True)
+        args.enum("gender", ["male", "female", "other"], required=True)
+        args.string("bio", required=True)
+        args.integer("age", required=True)
+        args.decimal("longitude", required=True)
+        args.decimal("latitude", required=True)
+
+        new = User()
+
         from pprint import pprint
+
+        pprint(new.test())
+
+        args.validate()
         
-        if not args:
-            return {"message" : "No args"}, 400
 
         new = User().create(**args)
         if (new.insert()):
-            pprint(new.to_dict())
+            
             return new.to_dict(), 200
         return {"message" : "Duplicate error"}, 400
+
+
+class UserResource(Resource):
+    
+    @jwt_required
+    def get(self, id):
+        user = User.get(id=id)
+        pprint(user.to_dict())
+        return user.to_dict(), 200

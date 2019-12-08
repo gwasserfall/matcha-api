@@ -1,7 +1,5 @@
 # Users
 
-Get a users information
-
 <details>
 <summary>GET - /user/&ltint:id&gt</summary>
 
@@ -101,25 +99,119 @@ axios.post("/users", {username : "username", gender: "female"})
 
 
 <details>
-<summary>DELETE - /users</summary>
+<summary>PUT - /user/&ltint:id&gt</summary>
+
+>### Example usage:
+
+```javascript
+axios.put("/users/1", {username : "newusername", gender: "other"})
+  .then(data => {
+    // data is the newly created user account
+  })
+  .catch(err => {
+    // err.message populated
+  })
+```
+
+>Success (201) : Response
 
 ```json
 {
-  "username" : "example"
+    "id" : "1",
+    "fname" : "firstname",
+    "lname" : "lastname",
+    "email" : "email@domain.tld",
+    "username" : "newusername",
+    "bio" : "Biography in Markdown Syntax",
+    "gender" : "other",
+    "age" : 21,
+    "longitude" : 40.714,
+    "latitude" : -74.006,
+    "heat" : 100,
+    "online" : false,
+    "date_joined" : 1575194400,
+    "date_lastseen" : 1575194400
 }
 ```
+
+>Faliure (400) : Response
+
+```json
+{
+  "message" : "Validation error raised"
+}
+```
+
+>Faliure (404) : Response
+
+```json
+{
+  "message" : "User not found"
+}
+```
+
+
 </details>
 
 
-# Profile
 
 <details>
-<summary>GET - /user/&ltint:id&gt/profile</summary>
+<summary>DELETE - /user/&ltint:id&gt</summary>
+
+### Example usage:
+
+```javascript
+axios.delete("/user/1")
+  .then(data => {
+    // empty data
+  })
+  .catch(err => {
+    // err.message populated
+  })
+```
+
+>Success (204) No Content : Response
+
+```json
+
+```
+
+>Faliure (400) : Response
 
 ```json
 {
-  "username" : "example"
+  "message" : "Could not delete user"
 }
 ```
+
+>Faliure (404) : Response
+
+```json
+{
+  "message" : "User not found"
+}
+```
+
+</details>
+
+
+# User Preferences
+
+<details>
+<summary>GET - /user/&ltint:id&gt/preferences</summary>
+
+### Example usage:
+
+```javascript
+axios.post("/users")
+  .then(data => {
+    // data is the newly created user account
+  })
+  .catch(err => {
+    // err.message populated
+  })
+```
+
+
 </details>
 
