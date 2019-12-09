@@ -1,7 +1,14 @@
 import pymysql
 import config
 
+from pprint import pprint
+
+pprint(config.database)
+
 db = pymysql.connect(**config.database)
+
+
+quit()
 
 with db.cursor() as c:
 	print("Creating table users.")

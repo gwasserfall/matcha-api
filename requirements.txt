@@ -2,3 +2,5 @@ Flask==1.1.1
 Flask-JWT-Extended==3.24.1
 Flask-RESTful==0.3.7
 PyMySQL==0.9.3
+python-dotenv==0.10.3
+cryptography==2.8
