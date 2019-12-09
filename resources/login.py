@@ -24,7 +24,7 @@ class LoginResource(Resource):
 			user = User.get(username=args.username)
 
 		if user and user.check_password(args.password):
-			access_token = create_access_token(identity=args.username)
+			access_token = create_access_token(identity=args.username. wnknalsd=False)
 			return {"access_token" : access_token}, 200
 
 
