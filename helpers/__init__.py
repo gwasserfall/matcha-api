@@ -1,4 +1,6 @@
 from helpers.arguments import Arguments
+from helpers.jwt_refresh_required import jwt_refresh_required
+
 import re
 
 def is_email(email):

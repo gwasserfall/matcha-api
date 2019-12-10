@@ -16,7 +16,13 @@ class User(Model):
 		self.email = kwargs.get("email", None)
 		self.username = kwargs.get("username", None)
 
-		self.passhash = kwargs.get("passhash", None)
+		password = kwargs.get("password", None)
+
+		if password:
+			print("Creating a new user in code before database")
+			self.passhash = self.hash_password(password)
+		else:
+			self.passhash = kwargs.get("passhash", None)
 		
 		self.bio = kwargs.get("bio", None)
 		self.gender = kwargs.get("gender", None)
@@ -54,18 +60,15 @@ class User(Model):
 				SELECT 
 					id, fname, lname, email, username, passhash,
 					bio, gender, age, longitude, latitude,
-					fame, date_lastseen, date_joined,
+					heat, date_lastseen, date_joined,
 					online
 				FROM 
 					users 
 				WHERE 
 					{}=%s""".format(key), (val,))
 
-			print("QUERY :: {}".format(c._last_executed))
-			print(cls.hash_password(cls, "AS$hat11"))
-
 			data = c.fetchone()
-			pprint(data)			
+			
 		return User(**data) if data else False
 
 	def create(self, **kwargs):
@@ -82,7 +85,8 @@ class User(Model):
 		return self
 
 	def insert_query(self, **kwargs):
-		value_dict = self.to_dict()
+		value_dict = self._as_dict()
+	
 		key = ", ".join(value_dict.keys())
 		val = ", ".join(["%s"] * len(value_dict))
 		
@@ -98,33 +102,29 @@ class User(Model):
 		return hashlib.sha256(salt.encode() + password.encode()).hexdigest() + ':' + salt
 		
 	def check_password(self, password):
-		pw, salt = self.passhash.split(':')
-		return pw == hashlib.sha256(salt.encode() + password.encode()).hexdigest()
-
-	def to_dict(self):
-		return {key : value for key, value in self.__dict__.items() 
-			if key not in ["db", "passhash"]
-			and value}
+		_hash, salt = self.passhash.split(':')
+		return _hash == hashlib.sha256(salt.encode() + password.encode()).hexdigest()
 
 	def save(self):
 		query = self.insert_query()
-	
+		print(query)
 		try:
 			with self.db.cursor() as c:
-				c.execute(query, tuple(self.to_dict().values()))
+				c.execute(query, tuple(self._as_dict().values()))
 				self.db.commit()
 
-				self.get(username=self.username)
+				fresh = self.get(username=self.username)
+				for key, val in fresh._as_dict().items():
+					self.__setattr__(key, val)
 				return True
 			
 		except IntegrityError as e:
 			print ("Duplicate entry here" + str(e))
 			return False
 
-
-	def keys(self):
-		pass
-
 	def __str__(self):
 		return "<User {}>".format(self.username)
 
+	def to_min_dict(self):
+		return {key : value for key, value in self.__dict__.items() 
+			if key in ["id", "bio", "username", "gender", "age", "heat"]}

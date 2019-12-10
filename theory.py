@@ -94,7 +94,79 @@
 
 # print(json.dumps(a))
 
-import re
+
+from collections.abc import MutableMapping
+from pprint import pprint
+import inspect
+
+def get_user_attributes(cls):
+    boring = dir(MutableMapping)
+    return [item
+            for item in cls.__dict__.keys()
+            if item[0] not in boring]
 
 
-print(re.match("[a-z]", "asd"))
+class Field:
+	def __init__(self, default=None):
+		self.value = default
+
+	def __repr__(self):
+		return "<Field>"
+
+
+class Model(MutableMapping):
+
+	db = "Database"
+
+	def __delitem__(self):
+		print("__delitem__")
+		pass
+
+	def __iter__(self):
+		print("__iter__")
+		pass
+
+	def __len__(self):
+		print("__len__")
+		pass
+
+	def __getitem__(self):
+		print("__getitem__")
+		pass
+
+	def __setitem__(self, key, val):
+		print("__setitem__", key, val)
+		pass
+
+	# def __getattribute__(self, key):
+	# 	print("__getattribute__", key)
+
+	def __setattr__(self, key, val):
+		if key in self.__class__.__dict__.keys():
+			self.__dict__[key] = val
+		else:
+			raise Exception("Not a field of this class")
+
+
+	def __repr__(self):
+		return "<Model:{0} 'name'>".format(self.__class__.__name__)
+
+
+
+class User(Model):
+
+	id = Field()
+	username = Field()
+	name2 = ""
+	name3 = ""
+	name4 = ""
+	name5 = ""
+
+	pass
+
+b = User()
+
+print("\n")
+print(b)
+b.id = 1
+
