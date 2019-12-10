@@ -3,6 +3,7 @@ from datetime import datetime
 
 import pymysql
 import config
+from datetime import datetime
 
 # Connect to the database
 connection = pymysql.connect(**config.database)

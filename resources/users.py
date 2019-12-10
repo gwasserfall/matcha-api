@@ -9,7 +9,18 @@ from helpers import Arguments
 
 from pprint import pprint
 
+
+
 class UserListResource(Resource):
+
+    def get(self):
+
+        args = Arguments(request.json)
+        args.date("dob", required=True)
+        args.validate()
+
+        return {"asd" : "asd"}, 200
+
 
     def post(self):
 
@@ -21,13 +32,13 @@ class UserListResource(Resource):
         args.string("username", required=True)
         args.enum("gender", ["male", "female", "other"], required=True)
         args.string("bio", required=True)
-        args.integer("age", required=True)
+        args.date("dob", required=True)
         args.decimal("longitude", required=True)
         args.decimal("latitude", required=True)
         args.validate()
 
         if User.get(username=args.username):
-            return {"message" : "Username alraedy exists"}, 400
+            return {"message" : "Username already exists"}, 400
 
         if User.get(email=args.email):
             return {"message" : "Email address already exists"}, 400
