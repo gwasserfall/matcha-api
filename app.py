@@ -15,9 +15,11 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 app.config['JWT_SECRET_KEY'] = 'super-secret'
 app.config['SECRET_KEY'] = 'super-secret'
-app.config['FLASK_JSON'] = {'separators': (', ', ': '),
-                            'indent': 2,
-                            'cls': MatchaJSONEncoder}
+app.config['RESTFUL_JSON'] = {"cls": MatchaJSONEncoder}
+
+
+#app.json_encoder = MatchaJSONEncoder
+
 jwt = JWTManager(app)
 
 api = Api(app, prefix="/v1")

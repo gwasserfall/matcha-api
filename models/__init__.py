@@ -1,5 +1,6 @@
 import pymysql
 import config
+from datetime import datetime
 
 # Connect to the database
 connection = pymysql.connect(**config.database)
@@ -13,9 +14,11 @@ class Model(object):
 
 	def __iter__(self):
 		for key, value in self.__dict__.items():
-			print(key, value, type(value))
 
-			if key not in ["db", "passhash"]:
+			if type(value) == datetime:
+				yield (key, datetime.strftime(value, "%Y-%m-%d"))
+
+			elif key not in ["db", "passhash"]:
 				yield (key, value)
 
 	def _as_dict(self):

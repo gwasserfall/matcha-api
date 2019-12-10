@@ -18,7 +18,7 @@ with db.cursor() as c:
 			passhash		LONGTEXT		NOT NULL,
 			bio				LONGTEXT,
 			gender			ENUM('male', 'female', 'other'),
-			age				INT,
+			dob				DATE,
 			longitude		DECIMAL(11, 8),
 			latitude		DECIMAL(11, 8),
 			heat			INT					DEFAULT (0),
