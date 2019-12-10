@@ -43,16 +43,17 @@ class UserListResource(Resource):
 
 class UserResource(Resource):
     
-    @jwt_refresh_required
     def get(self, id):
         
         current_user = get_jwt_identity()
         user = User.get(id=id)
 
+        print("USER HERE", user)
+
         if not user:
             return {"message" : "User does not exist"}, 404
 
-        if user.id != current_user["id"]:
-            return user.to_min_dict(), 200
-        else:
-            return user.to_dict(), 200
+        # if user.id != current_user["id"]:
+        #     return user.to_min_dict(), 200
+        # else:
+        return user, 200
