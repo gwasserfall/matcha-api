@@ -4,6 +4,7 @@ from flask_socketio import SocketIO
 from flask_jwt_extended import JWTManager
 
 from helpers import jwt_refresh_required
+from helpers import MatchaJSONEncoder
 
 from resources import UserListResource
 from resources import UserResource
@@ -14,6 +15,9 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 app.config['JWT_SECRET_KEY'] = 'super-secret'
 app.config['SECRET_KEY'] = 'super-secret'
+app.config['FLASK_JSON'] = {'separators': (', ', ': '),
+                            'indent': 2,
+                            'cls': MatchaJSONEncoder}
 jwt = JWTManager(app)
 
 api = Api(app, prefix="/v1")

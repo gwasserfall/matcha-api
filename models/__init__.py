@@ -13,6 +13,8 @@ class Model(object):
 
 	def __iter__(self):
 		for key, value in self.__dict__.items():
+			print(key, value, type(value))
+
 			if key not in ["db", "passhash"]:
 				yield (key, value)
 
