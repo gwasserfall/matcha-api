@@ -2,6 +2,7 @@ import hashlib
 import uuid
 
 from pprint import pprint
+from datetime import datetime
 
 from pymysql.err import IntegrityError
 from models import Model
@@ -26,7 +27,12 @@ class User(Model):
 		
 		self.bio = kwargs.get("bio", None)
 		self.gender = kwargs.get("gender", None)
-		self.age = kwargs.get("age", None)
+		self.dob = kwargs.get("dob", None)
+		if self.dob:
+			today = datetime.now()
+			self.age = int((today - self.dob).days / 365)
+		else:
+			self.age = 0
 		self.longitude = kwargs.get("longitude", None)
 		self.latitude = kwargs.get("latitude", None)
 		self.heat = kwargs.get("heat", None)
@@ -59,7 +65,7 @@ class User(Model):
 			c.execute("""
 				SELECT 
 					id, fname, lname, email, username, passhash,
-					bio, gender, age, longitude, latitude,
+					bio, gender, dob, longitude, latitude,
 					heat, date_lastseen, date_joined,
 					online
 				FROM 
@@ -81,21 +87,19 @@ class User(Model):
 			else:
 				# Set the value only if it exists
 				value and setattr(self, key, value)
-				print ("setting {} = {}".format(key, value))
 		return self
 
 	def insert_query(self, **kwargs):
-		value_dict = self._as_dict()
+		value_dict = {k:v for k, v in self._as_dict().items() if k not in ["age", "id"]}
 	
 		key = ", ".join(value_dict.keys())
 		val = ", ".join(["%s"] * len(value_dict))
-		
 		return """
 			INSERT INTO users
 				({key})
 			VALUES
 				({value})
-		""".format(key=key, value=val)
+		""".format(key=key, value=val), value_dict.values()
 
 	def hash_password(self, password):
 		salt = uuid.uuid4().hex
@@ -106,11 +110,12 @@ class User(Model):
 		return _hash == hashlib.sha256(salt.encode() + password.encode()).hexdigest()
 
 	def save(self):
-		query = self.insert_query()
-		print(query)
+		query, values = self.insert_query()
 		try:
 			with self.db.cursor() as c:
-				c.execute(query, tuple(self._as_dict().values()))
+
+				c.execute(query, tuple(values))
+	
 				self.db.commit()
 
 				fresh = self.get(username=self.username)

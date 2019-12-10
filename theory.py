@@ -117,6 +117,7 @@ class Field:
 class Model(MutableMapping):
 
 	db = "Database"
+	fields = []
 
 	def __delitem__(self):
 		print("__delitem__")

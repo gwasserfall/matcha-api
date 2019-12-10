@@ -1,6 +1,7 @@
 from flask import request as req
 from flask_restful import abort
 from json import JSONEncoder
+from datetime import datetime
 import re
 
 class Arg(object):
@@ -44,9 +45,19 @@ class Arguments(object):
 	def email(self, name, **kwargs):
 		self.arguments.append(Arg(name, str, regex=r"[^@]+@[^@]+\.[^@]+", email=True, **kwargs))
 
+	def date(self, name, **kwargs):
+		self.arguments.append(Arg(name, datetime, regex=r"^(19|20)\d\d([- /.])(0[1-9]|1[012])\2(0[1-9]|[12][0-9]|3[01])$", **kwargs))
+
 	def validate(self):
 		for arg in self.arguments:
 			value = self.request.get(arg.name, None)
+
+			# Check regex only on string
+			if arg.type in [str, datetime] and arg.regex and not re.match(arg.regex, value):
+				if arg.email:
+					arg.message="Email address is not valid"
+				abort(400, message=arg.message or "{} failed regex match".format(arg.name))
+				return False
 
 			# check required
 			if arg.required and not value:
@@ -55,8 +66,14 @@ class Arguments(object):
 			
 			# type coercion
 			try:
-				if arg.type is not list:
+				if arg.type is datetime:
+					if type(value) is not str:
+						raise ValueError
+					self.__setattr__(arg.name, datetime.strptime(value, "%Y-%m-%d"))
+				
+				elif arg.type is not list:
 					self.__setattr__(arg.name, arg.type(value))
+
 			except ValueError as e:
 				# abort here
 				abort(400, message=arg.message or "{0} is not of type {1}".format(arg.name, arg.type.__name__))
@@ -79,13 +96,6 @@ class Arguments(object):
 				if arg.type in [str] and len(value) > arg.max:
 					abort(400, message=arg.message or "{} does not meet maximum length requirement".format(arg.name))
 					return False
-
-			# Check regex only on string
-			if arg.type is str and arg.regex and not re.match(arg.regex, value):
-				if arg.email:
-					arg.message="Email address is not valid"
-				abort(400, message=arg.message or "{} failed regex match".format(arg.name))
-				return False
 
 			# Check enum
 			if arg.enum and value not in arg.enum:
