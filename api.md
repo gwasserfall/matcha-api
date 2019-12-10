@@ -215,3 +215,55 @@ axios.post("/users")
 
 </details>
 
+# User Accounts
+
+<details>
+<summary>POST - /login</summary>
+
+### Example usage:
+
+#### Request Parameters
+
+```json
+{
+  "username" : "username or email",
+  "password" : "user password"
+}
+```
+
+
+```javascript
+axios.post("/users")
+  .then(data => {
+    // data is the newly created user account
+  })
+  .catch(err => {
+    // err.message populated
+  })
+```
+
+>Success (200) 
+
+```json
+{
+  "access_token" : "jwt access token here"
+}
+```
+
+>Faliure (401) : Response
+
+```json
+{
+  "message" : "Failed to authenticate"
+}
+```
+
+>Faliure (404) : Response
+
+```json
+{
+  "message" : "User not found"
+}
+```
+
+</details>
