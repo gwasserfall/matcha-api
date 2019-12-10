@@ -5,7 +5,6 @@ import re
 
 class Arg(object):
 	def __init__(self, name, _type, **kwargs):
-		print (kwargs)
 		self.name = name
 		self.type = _type
 		self.required = kwargs.get("required", None)
@@ -21,10 +20,10 @@ class Arg(object):
 
 class Arguments(object):
 
-	arguments = []
-	json = {}
-
 	def __init__(self, request=None):
+		self.arguments = []
+		self.json = {}
+
 		if not request:
 			self.request = req.values
 		else:
@@ -56,7 +55,8 @@ class Arguments(object):
 			
 			# type coercion
 			try:
-				self.__setattr__(arg.name, arg.type(value))
+				if arg.type is not list:
+					self.__setattr__(arg.name, arg.type(value))
 			except ValueError as e:
 				# abort here
 				abort(400, message=arg.message or "{0} is not of type {1}".format(arg.name, arg.type.__name__))
@@ -95,3 +95,8 @@ class Arguments(object):
 			self.json[arg.name] = value
 
 		return True
+
+	def __iter__(self):
+		for key, val in self.__dict__.items():
+			if key not in ["json", "request", "arguments"]:
+				yield (key, val)

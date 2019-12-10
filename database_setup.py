@@ -38,19 +38,19 @@ with db.cursor() as c:
 	# """)
 
 
-	# print("Creating table user_preferences")
-	# c.execute("""
-	# 	CREATE TABLE IF NOT EXISTS user_preferences
-	# 	(
-	# 		id			INT AUTO_INCREMENT PRIMARY KEY,
-	# 		user_id		INTEGER				NOT NULL,
-	# 		interests	TEXT,
-	#		gender		ENUM('male', 'female', 'other'),
-	# 		radius		INTEGER,
-	# 		age_from	INTEGER				DEFAULT (18),
-	# 		age_to		INTEGER				DEFAULT (122)
-	# 	)
-	# """)
+	print("Creating table user_preferences")
+	c.execute("""
+		CREATE TABLE IF NOT EXISTS user_preferences
+		(
+			id			INT AUTO_INCREMENT PRIMARY KEY,
+			user_id		INTEGER				NOT NULL,
+			interests	TEXT,
+			gender		ENUM('male', 'female', 'other'),
+			radius		INTEGER,
+			age_from	INTEGER				DEFAULT (18),
+			age_to		INTEGER				DEFAULT (122)
+		)
+	""")
 
 # db.query("""
 # 	CREATE TABLE IF NOT EXISTS profile_view
