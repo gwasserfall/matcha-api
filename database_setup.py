@@ -1,6 +1,8 @@
 import pymysql
 import config
 
+from pprint import pprint
+
 db = pymysql.connect(**config.database)
 
 with db.cursor() as c:

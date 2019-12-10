@@ -2,6 +2,7 @@ Flask==1.1.1
 Flask-JWT-Extended==3.24.1
 Flask-RESTful==0.3.7
 PyMySQL==0.9.3
-Flask-Testing-0.7.1
 Flask-SocketIO==4.2.1
 gevent==1.4.0
+python-dotenv==0.10.3
+cryptography==2.8
