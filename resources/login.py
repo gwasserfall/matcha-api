@@ -22,16 +22,14 @@ class LoginResource(Resource):
 		else:
 			user = User.get(username=args.username)
 
-		if user and user.check_password(args.password):
-<<<<<<< HEAD
+		if not user:
+			return {"message" : "User not found"}, 404
+		if user.check_password(args.password):
 			identity = {
 				"id" : user.id,
 				"username" : user.username,
 				"email" : user.email}
 			access_token = create_refresh_token(identity=identity)
-=======
-			access_token = create_access_token(identity=args.username. wnknalsd=False)
->>>>>>> 638dfa7e91921ee8988c096fec3fd86cf57ce21a
 			return {"access_token" : access_token}, 200
 
 		else:

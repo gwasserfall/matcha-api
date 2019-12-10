@@ -55,4 +55,4 @@ class UserResource(Resource):
         if user.id != current_user["id"]:
             return user.to_min_dict(), 200
         else:
-            return user.to_dict(), 200
+            return dict(user), 200
