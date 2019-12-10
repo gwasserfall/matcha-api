@@ -96,77 +96,107 @@
 
 
 from collections.abc import MutableMapping
+from datetime import datetime
 from pprint import pprint
-import inspect
+import pymysql
+import config
 
-def get_user_attributes(cls):
-    boring = dir(MutableMapping)
-    return [item
-            for item in cls.__dict__.keys()
-            if item[0] not in boring]
+# Connect to the database
+connection = pymysql.connect(**config.database)
 
 
 class Field:
-	def __init__(self, default=None):
+	def __init__(self, typeof=str, default=None, fmt="%Y-%m-%d", hidden=False):
+		self.type = typeof
+		self.hidden = hidden
 		self.value = default
+		self.fmt = fmt
 
 	def __repr__(self):
-		return "<Field>"
+		return "<{0}:{1}>".format(self.type.__name__, self.value)
+
+	def deserialize(self):
+		if self.type == datetime and self.value:
+			return datetime.strptime(self.value, self.fmt)
+
+		return self.type(self.value) if self.value else None
 
 
 class Model(MutableMapping):
+	
+	db = connection
+	fields = {}
 
-	db = "Database"
+	def __init__(self, _data={}, **kwargs):
+		data = _data or kwargs
+		for k, v in self.__class__.__dict__.items():
+			if isinstance(v, Field):
+				if k in data.keys():
+					v.value = data[k]
+				self.fields[k] = v
 
 	def __delitem__(self):
 		print("__delitem__")
 		pass
 
 	def __iter__(self):
-		print("__iter__")
-		pass
+		for field in Model.fields:
+			if not Model.fields[field].hidden:
+				yield field
 
 	def __len__(self):
-		print("__len__")
-		pass
+		return len(self.fields)
 
-	def __getitem__(self):
-		print("__getitem__")
-		pass
+	def __getitem__(self, key):
+		print("__getitem__({})".format(key))
+		if key in self.fields.keys():
+			return self.fields[key].deserialize()
+		else:
+			raise AttributeError("{0} model has no '{1}' field".format(self.__class__.__name__, key))
 
 	def __setitem__(self, key, val):
-		print("__setitem__", key, val)
-		pass
+		self.__setattr__(key, val)
 
-	# def __getattribute__(self, key):
-	# 	print("__getattribute__", key)
+	def __getattribute__(self, name):
+		print ("__getattribute__({})".format(name))
+
+		if name is "field" and name in Model.fields.keys():
+			return Model.fields[name].deserialize()
+		return super(Model, self).__getattribute__(name)
 
 	def __setattr__(self, key, val):
-		if key in self.__class__.__dict__.keys():
-			self.__dict__[key] = val
+		
+		if key in self.fields.keys():
+			self.fields[key].value = val
 		else:
-			raise Exception("Not a field of this class")
-
+			raise AttributeError("{0} model has no '{1}' field".format(self.__class__.__name__, key))
 
 	def __repr__(self):
-		return "<Model:{0} 'name'>".format(self.__class__.__name__)
-
+		return "<Model:{0} '{1}'>".format(self.__class__.__name__, self.id)
 
 
 class User(Model):
 
-	id = Field()
-	username = Field()
-	name2 = ""
-	name3 = ""
-	name4 = ""
-	name5 = ""
+	id = Field(int)
+	fname = Field(str)
+	lname = Field(str)
+	email = Field(str)
+	username = Field(str)
+	passhash = Field(str, hidden=True)
+	bio = Field(str)
+	gender = Field(str)
+	age = Field(int)
+	longitude = Field(float)
+	latitude = Field(float)
+	heat = Field(int)
+	online = Field(bool)
+	date_lastseen = Field(datetime)
 
-	pass
 
-b = User()
+a = User({"id" : 1})
 
-print("\n")
-print(b)
-b.id = 1
 
+pprint(dict(a))
+
+
+connection.close()
