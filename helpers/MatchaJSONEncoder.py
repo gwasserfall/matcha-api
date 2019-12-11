@@ -1,9 +1,7 @@
-from json import JSONEncoder
+from simplejson import JSONEncoder
 from decimal import Decimal
 
-import json
 from models import Model
-
 
 class MatchaJSONEncoder(JSONEncoder):
     def default(self, obj):
