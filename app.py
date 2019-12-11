@@ -20,9 +20,6 @@ app.config['RESTFUL_JSON'] = {
     "encoding" : "utf-8"
     }
 
-
-#app.json_encoder = MatchaJSONEncoder
-
 jwt = JWTManager(app)
 
 api = Api(app, prefix="/v1")
@@ -30,6 +27,10 @@ api = Api(app, prefix="/v1")
 api.add_resource(UserListResource, "/users")
 api.add_resource(UserResource, "/user/<int:id>")
 api.add_resource(LoginResource, "/login")
+
+
+
+
 
 
 # Need to move to seperate file

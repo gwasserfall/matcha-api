@@ -6,3 +6,4 @@ Flask-SocketIO==4.2.1
 gevent==1.4.0
 python-dotenv==0.10.3
 cryptography==2.8
+simplejson==3.17.0

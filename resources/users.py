@@ -53,16 +53,11 @@ class UserListResource(Resource):
 
 
 class UserResource(Resource):
-    @jwt_refresh_required
+    #@jwt_refresh_required
     def get(self, id):
         
-        current_user = get_jwt_identity()
+        current_user = get_jwt_identity() or {"id" : 1}
         user = User.get(id=id)
-
-        user.gender = "females"
-
-        user.save()
-
 
         if not user:
             return {"message" : "User does not exist"}, 404
