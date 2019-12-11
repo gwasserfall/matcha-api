@@ -31,6 +31,12 @@ class User(Model):
 		_hash, salt = self.passhash.split(':')
 		return _hash == hashlib.sha256(salt.encode() + password.encode()).hexdigest()
 
+	def essential(self):
+		return {
+			"id" : self.id,
+			"fname" : self.fname,
+			"lname" : self.lname
+		}
 
 
 

@@ -100,6 +100,7 @@ from datetime import datetime
 from pprint import pprint
 import pymysql
 import config
+from copy import deepcopy
 
 # Connect to the database
 connection = pymysql.connect(**config.database)
@@ -122,61 +123,70 @@ class Field:
 		return self.type(self.value) if self.value else None
 
 
-class Model(MutableMapping):
-	
-	db = connection
-	fields = {}
 
-	def __init__(self, _data={}, **kwargs):
-		data = _data or kwargs
+class Base(MutableMapping):
+
+	def __init__(self):
+		self.fields = {}
 		for k, v in self.__class__.__dict__.items():
 			if isinstance(v, Field):
-				if k in data.keys():
-					v.value = data[k]
-				self.fields[k] = v
+				self.fields[k] = deepcopy(v)
 
-	def __delitem__(self):
-		print("__delitem__")
-		pass
+	def __getattribute__(self, name):
+		if name in ["__class__", "fields", "__dict__"]:
+			return super(Base, self).__getattribute__(name)
+		if name not in self.fields:
+			return super(Base, self).__getattribute__(name)
+		raise AttributeError
 
-	def __iter__(self):
-		for field in Model.fields:
-			if not Model.fields[field].hidden:
-				yield field
+	def __getattr__(self, key):
+		pprint(self.__dict__)
+		if key in self.__dict__:
+			print("HERE IT IS")
 
-	def __len__(self):
-		return len(self.fields)
+		if key in self.fields:
+			return self.fields[key].value
+		raise AttributeError("Field not present")
 
 	def __getitem__(self, key):
-		print("__getitem__({})".format(key))
 		if key in self.fields.keys():
 			return self.fields[key].deserialize()
 		else:
-			raise AttributeError("{0} model has no '{1}' field".format(self.__class__.__name__, key))
+			return self.__dict__[key]
 
 	def __setitem__(self, key, val):
 		self.__setattr__(key, val)
 
-	def __getattribute__(self, name):
-		print ("__getattribute__({})".format(name))
-
-		if name is "field" and name in Model.fields.keys():
-			return Model.fields[name].deserialize()
-		return super(Model, self).__getattribute__(name)
 
 	def __setattr__(self, key, val):
-		
-		if key in self.fields.keys():
-			self.fields[key].value = val
+		if key is "fields":
+			super(Base, self).__setattr__(key, val)
 		else:
-			raise AttributeError("{0} model has no '{1}' field".format(self.__class__.__name__, key))
+			if key in self.fields:
+				self.fields[key].value = val
+			else:
+				raise AttributeError
+
+	def __delitem__(self):
+		pass
 
 	def __repr__(self):
 		return "<Model:{0} '{1}'>".format(self.__class__.__name__, self.id)
 
+	def __len__(self):
+		return len(self.fields)
 
-class User(Model):
+	def __iter__(self):
+		for k, v in self.fields.items():
+			if not v.hidden:
+				yield k
 
+	def func(self):
+		print("asdasdasd")
+
+
+class User(Base):
+	
 	id = Field(int)
 	fname = Field(str)
 	lname = Field(str)
@@ -193,10 +203,11 @@ class User(Model):
 	date_lastseen = Field(datetime)
 
 
-a = User({"id" : 1})
 
+a = User()
+b = User()
 
-pprint(dict(a))
+a.id = "1"
 
+a.func()
 
-connection.close()

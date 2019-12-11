@@ -15,7 +15,10 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 app.config['JWT_SECRET_KEY'] = 'super-secret'
 app.config['SECRET_KEY'] = 'super-secret'
-app.config['RESTFUL_JSON'] = {"cls": MatchaJSONEncoder}
+app.config['RESTFUL_JSON'] = {
+    "cls": MatchaJSONEncoder,
+    "encoding" : "utf-8"
+    }
 
 
 #app.json_encoder = MatchaJSONEncoder

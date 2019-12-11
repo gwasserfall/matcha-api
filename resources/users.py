@@ -43,7 +43,7 @@ class UserListResource(Resource):
         if User.get(email=args.email):
             return {"message" : "Email address already exists"}, 400
 
-        new = User(**dict(args))
+        new = User(dict(args))
 
         if (new.save()):
             return dict(new), 200
@@ -53,18 +53,21 @@ class UserListResource(Resource):
 
 
 class UserResource(Resource):
-    
+    @jwt_refresh_required
     def get(self, id):
         
         current_user = get_jwt_identity()
         user = User.get(id=id)
 
-        print("USER HERE", user)
+        user.gender = "females"
+
+        user.save()
+
 
         if not user:
             return {"message" : "User does not exist"}, 404
 
-        # if user.id != current_user["id"]:
-        #     return user.to_min_dict(), 200
-        # else:
-        return user, 200
+        if user.id != current_user["id"]:
+            return user.essential(), 200
+        else:
+            return user, 200
