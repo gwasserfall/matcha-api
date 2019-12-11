@@ -1,109 +1,20 @@
-# from pymysql.cursors import DictCursor
-
-# from pprint import pprint
-
-# from pypika import Query, Table, Field
-
-# import pymysql
-
-# database = {
-# 	"host"			:'127.0.0.1',
-# 	"user"			:'root',
-# 	"password"		:'password',
-# 	"db"			: 'matcha',
-# 	"charset"		: 'utf8mb4',
-# 	"cursorclass"	: DictCursor
-# }
-
-# # Connect to the database
-# db = pymysql.connect(**database)
-
-# class User():
-# 	def __init__(self):
-# 		self.db = db
-
-# 	@staticmethod
-# 	def filter(**kwargs):
-# 		if kwargs:
-# 			where = ", ".join(["{0}={1}".format(x,y) for x,y in kwargs.items()])
-# 		else:
-# 			where = None
-
-# 		table = Table("users")
-
-# 		with db.cursor() as c:
-# 			q = Query.from_(table).select("*").where(table['username'].like("%ass"))
-
-# 			print(q)
-
-# 			c.execute(q.get_sql(quote_char=False))
-# 			print(c._last_executed)
-# 			pprint(c.fetchall())
-
-
-# class ValidationError(Exception):
-# 	pass
-
-# class Column(dict):
-
-# 	value = None
-
-# 	def __init__(self, type_of, default=None, length=255):
-# 		pass
-
-# 	def __getattribute__(self, name):
-# 		return "asd"
-
-# 	def __getitem__(self, name):
-# 		return "asd"
-
-# 	def __setattr__(self, name, value):
-# 		pass
-
-
-
-
-# users = Users.getmany(username="%a%")
-
-# user = Users.get(email="asda@asd.com")
-
-# user = Users.create(**kwargs)
-
-# user.name = "whatever"
-
-# try:
-# 	user.save()
-# except ValidationException as e:
-# 	return {"message" : e}, 401
-
-# if user.delete():
-# 	return {}, 201
-# else:
-# 	return {"message" : e}, 401
-
-# from json import JSONEncoder
-# import simplejson as json
-
-# class A(dict):
-#     pass
-
-
-# a = A()
-
-# a["asd"] = "asd"
-
-# print(json.dumps(a))
-
-
 from collections.abc import MutableMapping
 from datetime import datetime
-from pprint import pprint
+
 import pymysql
 import config
+from datetime import datetime
 from copy import deepcopy
+
+import hashlib
+import uuid
+
+from pprint import pprint
+from datetime import datetime
 
 # Connect to the database
 connection = pymysql.connect(**config.database)
+
 
 
 class Field:
@@ -122,31 +33,36 @@ class Field:
 
 		return self.type(self.value) if self.value else None
 
+	def serialize(self, value):
+		self.value = value
 
 
-class Base(MutableMapping):
 
-	def __init__(self):
+class Model(object):
+
+	db = connection
+
+	def __init__(self, _data={}, **kwargs):
+		data = _data or kwargs
 		self.fields = {}
+		self.before_init(data)
 		for k, v in self.__class__.__dict__.items():
 			if isinstance(v, Field):
 				self.fields[k] = deepcopy(v)
+				if k in data.keys():
+					self.fields[k].serialize(data[k])
 
 	def __getattribute__(self, name):
-		if name in ["__class__", "fields", "__dict__"]:
-			return super(Base, self).__getattribute__(name)
+		if name in ["__class__", "fields", "essential"]:
+			return super(Model, self).__getattribute__(name)
 		if name not in self.fields:
-			return super(Base, self).__getattribute__(name)
+			return super(Model, self).__getattribute__(name)
 		raise AttributeError
 
 	def __getattr__(self, key):
-		pprint(self.__dict__)
-		if key in self.__dict__:
-			print("HERE IT IS")
-
 		if key in self.fields:
 			return self.fields[key].value
-		raise AttributeError("Field not present")
+		raise AttributeError("Field not present {}".format(key))
 
 	def __getitem__(self, key):
 		if key in self.fields.keys():
@@ -157,10 +73,9 @@ class Base(MutableMapping):
 	def __setitem__(self, key, val):
 		self.__setattr__(key, val)
 
-
 	def __setattr__(self, key, val):
 		if key is "fields":
-			super(Base, self).__setattr__(key, val)
+			super(Model, self).__setattr__(key, val)
 		else:
 			if key in self.fields:
 				self.fields[key].value = val
@@ -179,14 +94,58 @@ class Base(MutableMapping):
 	def __iter__(self):
 		for k, v in self.fields.items():
 			if not v.hidden:
-				yield k
+				yield (k, v.value)
 
-	def func(self):
-		print("asdasdasd")
+	def before_init(self, data):
+		pass
+
+	def save(self):
+		columns = []
+		values = []
+
+		print("Saving")
+
+		for name, field in self.fields.items():
+			if name == "id" and not field.value:
+				continue
+			columns.append(name)
+			values.append(field.deserialize())
+
+		query = """
+			REPLACE INTO users 
+				({0})
+			VALUES
+				({1})
+		""".format(", ".join(columns), ", ".join(["%s"] * len(values)))
+
+		with self.db.cursor() as c:
+			c.execute(query, tuple(values))
+			self.db.commit()
+
+	@classmethod
+	def get(cls, **kwargs):
+		if len(kwargs) > 1:
+			return False
+		key = next(iter(kwargs))
+		val = kwargs[key]
+		with cls.db.cursor() as c:
+			c.execute("""
+				SELECT 
+					id, fname, lname, email, username, passhash,
+					bio, gender, age, longitude, latitude,
+					heat, date_lastseen, date_joined,
+					online
+				FROM 
+					users 
+				WHERE 
+					{}=%s""".format(key), (val,))
+			data = c.fetchone()
+		return cls(data) if data else False
 
 
-class User(Base):
-	
+from pymysql.err import IntegrityError
+
+class User(Model):
 	id = Field(int)
 	fname = Field(str)
 	lname = Field(str)
@@ -202,12 +161,48 @@ class User(Base):
 	online = Field(bool)
 	date_lastseen = Field(datetime)
 
+	def before_init(self, data):
+
+		if "password" in data:
+			self.passhash.value = self.hash_password(data["password"])
 
 
-a = User()
-b = User()
+	def hash_password(self, password):
+		salt = uuid.uuid4().hex
+		return hashlib.sha256(salt.encode() + password.encode()).hexdigest() + ':' + salt
+		
+	def check_password(self, password):
+		_hash, salt = self.passhash.split(':')
+		return _hash == hashlib.sha256(salt.encode() + password.encode()).hexdigest()
 
-a.id = "1"
+	def essential(self):
+		return {
+			"id" : self.id,
+			"fname" : self.fname,
+			"lname" : self.lname
+		}
 
-a.func()
 
+
+
+a = User({
+    "id" : "1",
+    "fname" : "firstname",
+    "lname" : "lastname",
+    "email" : "email@domain.tld",
+    "username" : "username",
+	"password" : "password",
+    "bio" : "Biography in Markdown Syntax",
+    "gender" : "female",
+    "age" : 21,
+    "longitude" : 40.714,
+    "latitude" : -74.006,
+    "heat" : 100,
+    "date_joined" : "2018-01-01",
+    "date_lastseen" : "2018-01-01"
+})
+
+
+a.age = 51
+
+a.save()
