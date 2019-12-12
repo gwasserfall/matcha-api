@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from models import Model
 
-class MatchaJSONEncoder(JSONEncoder):
+class ModelEncoder(JSONEncoder):
     def default(self, obj):
 
         if isinstance(obj, Model):

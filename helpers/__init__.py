@@ -1,6 +1,6 @@
 from helpers.arguments import Arguments
 from helpers.jwt_refresh_required import jwt_refresh_required
-from helpers.model_encoder import MatchaJSONEncoder
+from helpers.model_encoder import ModelEncoder
 
 import re
 

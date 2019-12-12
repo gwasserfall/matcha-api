@@ -53,7 +53,7 @@ class Arguments(object):
 			value = self.request.get(arg.name, None)
 
 			# Check regex only on string
-			if arg.type in [str, datetime] and arg.regex and not re.match(arg.regex, value):
+			if arg.type in [str, datetime] and arg.regex and not re.match(arg.regex, str(value)):
 				if arg.email:
 					arg.message="Email address is not valid"
 				abort(400, message=arg.message or "{} failed regex match".format(arg.name))

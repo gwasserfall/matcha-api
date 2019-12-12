@@ -4,19 +4,18 @@ from flask_socketio import SocketIO
 from flask_jwt_extended import JWTManager
 
 from helpers import jwt_refresh_required
-from helpers import MatchaJSONEncoder
+from helpers import ModelEncoder
 
-from resources import UserListResource
-from resources import UserResource
-from resources import LoginResource
+from resources import *
 
 app = Flask(__name__)
+
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 app.config['JWT_SECRET_KEY'] = 'super-secret'
 app.config['SECRET_KEY'] = 'super-secret'
 app.config['RESTFUL_JSON'] = {
-    "cls": MatchaJSONEncoder,
+    "cls": ModelEncoder,
     "encoding" : "utf-8"
     }
 
@@ -27,10 +26,6 @@ api = Api(app, prefix="/v1")
 api.add_resource(UserListResource, "/users")
 api.add_resource(UserResource, "/user/<int:id>")
 api.add_resource(LoginResource, "/login")
-
-
-
-
 
 
 # Need to move to seperate file
