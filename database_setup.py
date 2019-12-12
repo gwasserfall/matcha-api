@@ -24,7 +24,8 @@ with db.cursor() as c:
 			heat			INT					DEFAULT (0),
 			online			TINYINT				DEFAULT (0),
 			date_joined		TIMESTAMP		DEFAULT CURRENT_TIMESTAMP,
-			date_lastseen	TIMESTAMP		DEFAULT CURRENT_TIMESTAMP
+			date_lastseen	TIMESTAMP		DEFAULT CURRENT_TIMESTAMP,
+			deleted			TINYINT			DEFAULT (0)
 		)
 	""")
 
