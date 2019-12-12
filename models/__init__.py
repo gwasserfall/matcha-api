@@ -9,10 +9,15 @@ from copy import deepcopy
 # Connect to the database
 connection = pymysql.connect(**config.database)
 
-
-
 class Field:
-	def __init__(self, typeof=str, default=None, fmt="%Y-%m-%d", hidden=False):
+	def __init__(self, 
+				 typeof=str, 
+				 default=None, 
+				 fmt="%Y-%m-%d", 
+				 hidden=False,
+				 modifiable=True
+				 ):
+		self.modifiable = modifiable
 		self.type = typeof
 		self.hidden = hidden
 		self.value = default
@@ -23,35 +28,35 @@ class Field:
 
 	def deserialize(self):
 		if self.type == datetime and self.value:
-			return datetime.strptime(self.value, self.fmt)
+			return self.value.strftime(self.fmt)
 
-		return self.type(self.value) if self.value else None
+		return self.value
 
 	def serialize(self, value):
 		self.value = value
 
 
 
-class Model(MutableMapping):
+class Model(object):
 
 	db = connection
 
 	def __init__(self, _data={}, **kwargs):
 		data = _data or kwargs
 		self.fields = {}
+		self.before_init(data)
 		for k, v in self.__class__.__dict__.items():
 			if isinstance(v, Field):
 				self.fields[k] = deepcopy(v)
 				if k in data.keys():
 					self.fields[k].serialize(data[k])
 
-
 	def __getattribute__(self, name):
-		if name in ["__class__", "fields", "essential"]:
+		if name in ["__class__", "fields"]:
 			return super(Model, self).__getattribute__(name)
-		if name not in self.fields:
-			return super(Model, self).__getattribute__(name)
-		raise AttributeError
+		if name in self.fields:
+			raise AttributeError
+		return super(Model, self).__getattribute__(name)
 
 	def __getattr__(self, key):
 		if key in self.fields:
@@ -72,9 +77,12 @@ class Model(MutableMapping):
 			super(Model, self).__setattr__(key, val)
 		else:
 			if key in self.fields:
-				self.fields[key].value = val
+				if self.fields[key].modifiable: 
+					self.fields[key].value = val
+				else:
+					raise Exception("Cannot modify field '{}'".format(key))
 			else:
-				raise AttributeError
+				raise AttributeError("Field {0} does not exist in Model {1}".format(key, self.__class__.__name__))
 
 	def __delitem__(self):
 		pass
@@ -88,7 +96,10 @@ class Model(MutableMapping):
 	def __iter__(self):
 		for k, v in self.fields.items():
 			if not v.hidden:
-				yield k
+				yield (k, v.value)
+
+	def before_init(self, data):
+		pass
 
 	def save(self):
 		columns = []
@@ -98,7 +109,10 @@ class Model(MutableMapping):
 			if name == "id" and not field.value:
 				continue
 			columns.append(name)
-			values.append(field.deserialize())
+			try:
+				values.append(field.deserialize())
+			except TypeError as e:
+				raise TypeError("Field {0} is not of type {1}".format(name, field.type.__name__))
 
 		query = """
 			REPLACE INTO users 
@@ -109,6 +123,28 @@ class Model(MutableMapping):
 
 		with self.db.cursor() as c:
 			c.execute(query, tuple(values))
+			self.db.commit()
+
+	def update(self, _dict={}, **kwargs):
+		data = _dict or kwargs
+
+		if data:
+			for k, v in data.items():
+				self[k] = v
+		else:
+			raise Exception("Nothing to update")
+
+
+	def delete(self):
+		
+		if self.id:
+			with self.db.cursor() as c:
+				c.execute("""
+					DELETE FROM {0} WHERE id='{1}'
+				""".format(self.table_name, self.id))
+				self.db.commit()
+		else:
+			raise Exception("User not in database")
 
 	@classmethod
 	def get(cls, **kwargs):
@@ -116,17 +152,19 @@ class Model(MutableMapping):
 			return False
 		key = next(iter(kwargs))
 		val = kwargs[key]
-		with cls.db.cursor() as c:
+
+		temp = cls()
+		with temp.db.cursor() as c:
 			c.execute("""
 				SELECT 
-					id, fname, lname, email, username, passhash,
-					bio, gender, age, longitude, latitude,
-					heat, date_lastseen, date_joined,
-					online
+					{fields}
 				FROM 
-					users 
-				WHERE 
-					{}=%s""".format(key), (val,))
+					{table} 
+				WHERE   {cond}=%s""".format(
+						fields = ", ".join(temp.fields.keys()),
+						table = cls.table_name,
+						cond = key), (val,))
+			
 			data = c.fetchone()
-		return cls(data) if data else False
 
+		return cls(data) if data else False
