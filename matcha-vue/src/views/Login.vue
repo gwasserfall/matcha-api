@@ -31,6 +31,11 @@
 export default {
   name: 'login',
   components: {
+  },
+  mounted: function()
+  {
+    alert(this.$api.get("asd", "asd"))
   }
+
 }
 </script>
