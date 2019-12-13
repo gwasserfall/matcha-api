@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, jsonify
 from flask_restful import Resource, Api
 from flask_socketio import SocketIO, join_room
 from flask_jwt_extended import JWTManager
@@ -9,11 +9,14 @@ from helpers import ModelEncoder
 
 from config import environment
 
+from chat import ChatController
+
 from resources import *
 
 app = Flask(__name__)
 
 socketio = SocketIO(app, cors_allowed_origins="*")
+chat = ChatController(socketio)
 
 app.config['JWT_SECRET_KEY'] = 'super-secret'
 app.config['SECRET_KEY'] = 'super-secret'
@@ -35,40 +38,29 @@ api.add_resource(LoginResource, "/login")
 def socket():
     return render_template("sockets.html")
 
+@app.route("/clients")
+def clients():
+    print(chat.clients)
+    return jsonify(chat.clients)
 
-clients = []
 
 @socketio.on('connect')
-def test_connect():
-    print(request.sid + " has joined the fold")
-    clients.append(request.sid)
-    room = session.get('room')
-    print(room)
-    join_room(room)
-    print(clients)
-    socketio.emit('reply', {'message': 'has entered the room.'}, room=clients[-1])
+def socket_register():
+    return chat.register(request.sid)
 
 @socketio.on('disconnect')
-def test_disconnect():
-    print("Disconnected")
+def socket_disconnect():
+    chat.disconnect(request.sid)
 
-# Need to move to seperate file
-@socketio.on('message')
-def handle_message(message):
-    print(request.sid)
-    socketio.emit("reply", {"message" : "We got " + message["message"]})
-    print('received message: ' + message["message"])
-    print(clients)
+@socketio.on('send-message')
+def socket_relay_message(data):
+    chat.relay_message(data)
 
-@socketio.on_error()        # Handles the default namespace
+@socketio.on_error()
 def error_handler(e):
-    pass
+    print(str(e))
 
-
-if environment.lower() in ["dev", "development"]:
-    debug = True
-else:
-    debug = False
 
 if __name__ == "__main__":
+    debug = True if environment.lower() in ["dev", "development"] else False
     socketio.run(app, debug=debug, host="0.0.0.0" if debug else "127.0.0.1", port=5000)
