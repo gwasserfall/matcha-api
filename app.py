@@ -6,6 +6,8 @@ from flask_jwt_extended import JWTManager
 from helpers import jwt_refresh_required
 from helpers import ModelEncoder
 
+from config import environment
+
 from resources import *
 
 app = Flask(__name__)
@@ -33,5 +35,15 @@ api.add_resource(LoginResource, "/login")
 def handle_message(message):
     print('received message: ' + message)
 
+@socketio.on_error()        # Handles the default namespace
+def error_handler(e):
+    pass
+
+
+if environment.lower() in ["dev", "development"]:
+    debug = True
+else:
+    debug = False
+
 if __name__ == "__main__":
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=debug, host="0.0.0.0" if debug else "127.0.0.1", port=5000)
