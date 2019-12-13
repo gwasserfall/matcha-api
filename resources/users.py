@@ -45,11 +45,12 @@ class UserListResource(Resource):
 
         new = User(dict(args))
 
-        if (new.save()):
-            return dict(new), 200
-        else:
-            return {"message" : "Failed to create user"}, 500
+        try:
+            new.save()
+        except Exception as e:
+            return {"message" : str(e)}, 500
 
+        return new, 200
 
 
 class UserResource(Resource):

@@ -1,6 +1,7 @@
 from helpers.arguments import Arguments
 from helpers.jwt_refresh_required import jwt_refresh_required
 from helpers.model_encoder import ModelEncoder
+from helpers.jwt_required_socket import jwt_required_socket
 
 import re
 
