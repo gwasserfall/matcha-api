@@ -48,7 +48,7 @@ class UserListResource(Resource):
         if (new.save()):
             return dict(new), 200
         else:
-            return {"message" : "Falied to create user"}, 500
+            return {"message" : "Failed to create user"}, 500
 
 
 

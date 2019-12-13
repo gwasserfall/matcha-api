@@ -12,5 +12,5 @@ class ModelEncoder(JSONEncoder):
         if isinstance(obj, Decimal):
             return float(obj)
 
-        return super(MatchaJSONEncoder, self).default(obj)
+        return super(ModelEncoder, self).default(obj)
     
