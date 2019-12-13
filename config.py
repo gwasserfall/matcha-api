@@ -13,3 +13,5 @@ database = {
 	"charset"		: 'utf8mb4',
 	"cursorclass"	: DictCursor
 }
+
+environment = os.getenv("ENV")
