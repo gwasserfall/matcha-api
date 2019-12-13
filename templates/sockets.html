@@ -1,0 +1,41 @@
+<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+
+<style>
+	#messages {
+		width: 50vw;
+		height: 40vh;
+		background-color: azure;
+		border: 1px solid black;
+		overflow-y: scroll;
+	}
+</style>
+
+<div id="messages"></div>
+
+
+<input id="text" type="text">
+<button onclick="send()">Send</button>
+
+<script type="text/javascript" charset="utf-8">
+	var messages = document.getElementById("messages")
+	var input = document.getElementById("text")
+    
+    var socket = io();
+	
+	socket.on('connect', function() {
+        socket.emit('my event', {data: 'I\'m connected!'});
+    });
+
+	socket.on('reply', function(data) {
+		messages.innerHTML += data.message + "<br>"
+	})
+
+
+	function send(){
+		messages.innerHTML += input.value + "<br>"
+
+		socket.emit("message", {message : input.value})
+		input.value = ""
+		socket.disconnect()
+	}
+</script>
