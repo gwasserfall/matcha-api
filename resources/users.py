@@ -9,8 +9,6 @@ from helpers import Arguments
 
 from pprint import pprint
 
-
-
 class UserListResource(Resource):
 
     def get(self):

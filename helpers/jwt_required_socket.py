@@ -16,7 +16,7 @@ def jwt_required_socket(fn):
             kwargs["authenticated"] = True
             print("FOUND TOKEN")
         except Exception as e:
-            print("TOKEN NOT FOUND")
+            print("TOKEN NOT FOUND", str(e))
             kwargs["authenticated"] = False
         return fn(*args, **kwargs)
     return wrapper

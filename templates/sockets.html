@@ -1,4 +1,5 @@
-<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+<script src="/static/socket.io.js"></script>
+<script src="/static/axios.min.js"></script>
 
 <style>
 	#messages {
@@ -91,13 +92,14 @@
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
 <script type="text/javascript" charset="utf-8">
 
 	var messages = document.getElementById("messages")
 	var input = document.getElementById("text")
 	var users = document.getElementById("users")
 	var sockid = document.getElementById("sockid")
+
+	var send_to = ""
 
 	var currentChatBuddy = ""
 	var socket = io({
@@ -117,7 +119,7 @@
 			.then(resp => {
 				resp.data.forEach(user => {
 					users.innerHTML += `
-						<span class="button"><button id="${user.username}" onclick="select-user(this)">${user.username}</button></span>
+						<span class="button"><button id="${user.username}" onclick="select_user(this)">${user.username}</button></span>
 					`
 				});
 			})
@@ -125,7 +127,7 @@
 
 	function select_user(el)
 	{
-
+		send_to = el.id
 	}
 
 	function disconnect(el)
@@ -135,12 +137,12 @@
 
 	// gwassssserf eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NzYyNDYwMTIsIm5iZiI6MTU3NjI0NjAxMiwianRpIjoiNDdkYzk4NzUtY2Y4MC00ZmNiLTg3ZWYtOGM1ZDBkODZlMDBjIiwiZXhwIjoxNTc4ODM4MDEyLCJpZGVudGl0eSI6eyJpZCI6OCwidXNlcm5hbWUiOiJnd2Fzc3Nkc2RzZGVkcmYiLCJlbWFpbCI6ImdsZW5Ad2FzYXNkZXNyZmFsZHNscy5jby56YSJ9LCJ0eXBlIjoicmVmcmVzaCJ9.gjF8iGphdkuyRNaviuJjXW2UE6yMijjHSO5g2dexe5s
 
-	// gwassserf meyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NzYyNDYwMzgsIm5iZiI6MTU3NjI0NjAzOCwianRpIjoiNGMwMjhiMzUtNWZkMy00NzBjLWE3YzItOGVhNmVlYzEzMjU0IiwiZXhwIjoxNTc4ODM4MDM4LCJpZGVudGl0eSI6eyJpZCI6NSwidXNlcm5hbWUiOiJnd2Fzc3NlcmYiLCJlbWFpbCI6ImdsZW5Ad2FzYXNlcmZhbGxzLmNvLnphIn0sInR5cGUiOiJyZWZyZXNoIn0.6JB-3T2MzHRVkkWqjr93J0gSdd1zf6uXMqs7iOBEsqs
+	// gwassserf eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NzY1NzYyNjIsIm5iZiI6MTU3NjU3NjI2MiwianRpIjoiZjQwOGEwNDMtYjFhMy00MDAyLThhZTktYmY2ZjA0NDBmMWNmIiwiZXhwIjoxNTc5MTY4MjYyLCJpZGVudGl0eSI6eyJpZCI6MywidXNlcm5hbWUiOiJnd2FzZHNlcmYiLCJlbWFpbCI6ImdsZW5Ad2Fkc3NlcmZhbGxzLmNvLnphIn0sInR5cGUiOiJyZWZyZXNoIn0.clURdG7r5Xcah0ZMb9SkGWnY9B9RhwjSNxj1bKzLrvw
 
 	function connect(el)
 	{	
 		var token = document.getElementById("jwt").value
-		alert("adding token " + token)
+		console.log(`Bearer ${token}`)
 		socket.io.opts.transportOptions.polling.extraHeaders.Authorization = `Bearer ${token}`
 		socket.connect({forceNew: true})
 		
@@ -156,6 +158,7 @@
     });
 
 	socket.on('message', function(data) {
+		console.log("Message recieved")
 		messages.innerHTML += data.username + " " + data.message + "<br>"
 	})
 
@@ -170,14 +173,13 @@
 	});
 
 	function send(elem){
-		console.log("Sending message to" + elem.id)
+		console.log("Sending message to" + send_to)
 		messages.innerHTML += input.value + "<br>"
 
 		socket.emit("message", {
-			to : elem.id,
+			to : send_to,
 			message : input.value
 			})
 		input.value = ""
-		//socket.disconnect()
 	}
 </script>

@@ -29,16 +29,16 @@ with db.cursor() as c:
 		)
 	""")
 
-	# print("Creating table user_images")
-	# c.execute("""
-	# 	CREATE TABLE IF NOT EXISTS user_images
-	# 	(
-	# 		id			INT				AUTO_INCREMENT PRIMARY KEY,
-	# 		user_id		INT				NOT NULL,
-	# 		image64		LONGTEXT		NOT NULL,
-	# 		image_type	varchar(6)		NOT NULL
-	# 	)
-	# """)
+	print("Creating table images")
+	c.execute("""
+		CREATE TABLE IF NOT EXISTS images
+		(
+			id			INT				AUTO_INCREMENT PRIMARY KEY,
+			user_id		INT				NOT NULL,
+			image64		LONGTEXT		NOT NULL,
+			image_type	varchar(6)		NOT NULL
+		)
+	""")
 
 
 	print("Creating table user_preferences")
@@ -48,10 +48,19 @@ with db.cursor() as c:
 			id			INT AUTO_INCREMENT PRIMARY KEY,
 			user_id		INTEGER				NOT NULL,
 			interests	TEXT,
-			gender		ENUM('male', 'female', 'other'),
 			radius		INTEGER,
 			age_from	INTEGER				DEFAULT (18),
 			age_to		INTEGER				DEFAULT (122)
+		)
+	""")
+
+	print("Creating table gender_preference")
+	c.execute("""
+		CREATE TABLE IF NOT EXISTS gender_preference
+		(
+			id			INT AUTO_INCREMENT PRIMARY KEY,
+			user_id		INTEGER				NOT NULL,
+			gender		ENUM('male', 'female', 'other')
 		)
 	""")
 
@@ -65,15 +74,16 @@ with db.cursor() as c:
 # 	)
 # """)
 
-# db.query("""
-# 	CREATE TABLE IF NOT EXISTS matches
-# 	(
-# 		id			INTEGER				AUTO INCREMENT,
-# 		date		DATETIME			DEFAULT CURRENT_TIMESTAMP,
-# 		matcher_id	INTEGER				NOT NULL,
-# 		matchee_id	INTEGER				NOT NULL
-# 	)
-# """)
+with db.cursor() as c:
+	c.execute("""
+		CREATE TABLE IF NOT EXISTS matches
+		(
+			id			INT 				AUTO_INCREMENT PRIMARY KEY,
+			date		DATETIME			DEFAULT CURRENT_TIMESTAMP,
+			matcher_id	INTEGER				NOT NULL,
+			matchee_id	INTEGER				NOT NULL
+		)
+	""")
 
 # db.query("""
 # 	CREATE TABLE IF NOT EXISTS user_blocks
@@ -97,16 +107,18 @@ with db.cursor() as c:
 # 	)
 # """)
 
-# db.query("""
-# 	CREATE TABLE IF NOT EXISTS messages
-# 	(
-# 		id			INTEGER				AUTO INCREMENT,
-# 		user_id		INTEGER,
-#		from_id		INT,
-# 		message		TEXT,
-# 		read		INTEGER				DEFAULT 0
-# 	)
-# """)
+with db.cursor() as c:
+	c.execute("""
+		CREATE TABLE IF NOT EXISTS messages
+		(
+			id			INT 				AUTO_INCREMENT PRIMARY KEY,
+			to_id		INT,
+			from_id		INT,
+			timestamp	DATETIME			DEFAULT CURRENT_TIMESTAMP,
+			message		TEXT,
+			seen		INT				DEFAULT(0)
+		)
+	""")
 
 
 
