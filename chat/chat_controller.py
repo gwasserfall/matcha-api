@@ -3,9 +3,9 @@ from helpers import jwt_required_socket
 from flask_jwt_extended import get_jwt_identity
 
 class ChatController:
-	def __init__(self, io):
+	def __init__(self, io, clients):
 		self.io = io
-		self.clients = []
+		self.clients = clients
 
 	def __getitem__(self, key):
 		pass
@@ -27,12 +27,13 @@ class ChatController:
 		to_user = payload.get("to", None)
 		message = payload.get("message", "no data")
 
-		if user in self.clients:
-			print(user)
-			if to_user == user["username"]:
-				print("Message should be sent")
-				socketio.emit('message', {'message': message}, room=user[sid])
-		pass
+		print(payload)
+		print("Sending from ", from_id, "to", to_user, "message:", message)
+
+		for user in self.clients:
+			if user["username"] == to_user:
+				self.io.emit('message', {'message': message}, room=user["sid"])
+
 
 	def disconnect(self, sid):
 		for i, client in enumerate(self.clients):

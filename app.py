@@ -3,20 +3,18 @@ from flask_restful import Resource, Api
 from flask_socketio import SocketIO, join_room
 from flask_jwt_extended import JWTManager
 
-
 from helpers import jwt_refresh_required
 from helpers import ModelEncoder
 
-from config import environment
+from resources import setup_socket_routes
 
-from chat import ChatController
+from config import environment
 
 from resources import *
 
 app = Flask(__name__)
 
 socketio = SocketIO(app, cors_allowed_origins="*")
-chat = ChatController(socketio)
 
 app.config['JWT_SECRET_KEY'] = 'super-secret'
 app.config['SECRET_KEY'] = 'super-secret'
@@ -33,6 +31,24 @@ api.add_resource(UserListResource, "/users")
 api.add_resource(UserResource, "/user/<int:id>")
 api.add_resource(LoginResource, "/login")
 
+# Dev
+api.add_resource(ImageListResource, "/images")
+api.add_resource(UserImagesResource, "/images/<str:username>")
+
+# Requires token to infer viewer user id
+api.add_resource(ProfileViewListResource, "/profile-view/<str:username>")
+
+# Post when matches
+api.add_resource(MatchListResource, "/matches")
+
+# Can only see your own
+api.add_resource(MatchResource, "/matches/<str:username>")
+# Partial match and full match
+
+
+
+
+setup_socket_routes(socketio)
 
 @app.route("/")
 def socket():
@@ -42,24 +58,6 @@ def socket():
 def clients():
     print(chat.clients)
     return jsonify(chat.clients)
-
-
-@socketio.on('connect')
-def socket_register():
-    return chat.register(request.sid)
-
-@socketio.on('disconnect')
-def socket_disconnect():
-    chat.disconnect(request.sid)
-
-@socketio.on('send-message')
-def socket_relay_message(data):
-    chat.relay_message(data)
-
-@socketio.on_error()
-def error_handler(e):
-    print(str(e))
-
 
 if __name__ == "__main__":
     debug = True if environment.lower() in ["dev", "development"] else False
