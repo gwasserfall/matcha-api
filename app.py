@@ -27,22 +27,24 @@ jwt = JWTManager(app)
 
 api = Api(app, prefix="/v1")
 
+
+# TODO: Document for pair programming
 api.add_resource(UserListResource, "/users")
 api.add_resource(UserResource, "/user/<int:id>")
 api.add_resource(LoginResource, "/login")
 
 # Dev
-api.add_resource(ImageListResource, "/images")
-api.add_resource(UserImagesResource, "/images/<str:username>")
+# api.add_resource(ImageListResource, "/images")
+# api.add_resource(UserImagesResource, "/images/<str:username>")
 
 # Requires token to infer viewer user id
-api.add_resource(ProfileViewListResource, "/profile-view/<str:username>")
+# api.add_resource(ProfileViewListResource, "/profile-view/<str:username>")
 
 # Post when matches
-api.add_resource(MatchListResource, "/matches")
+# api.add_resource(MatchListResource, "/matches")
 
 # Can only see your own
-api.add_resource(MatchResource, "/matches/<str:username>")
+# api.add_resource(MatchResource, "/matches/<str:username>")
 # Partial match and full match
 
 
@@ -54,11 +56,11 @@ setup_socket_routes(socketio)
 def socket():
     return render_template("sockets.html")
 
-@app.route("/clients")
-def clients():
-    print(chat.clients)
-    return jsonify(chat.clients)
+# @app.route("/clients")
+# def clients():
+#     print(chat.clients)
+#     return jsonify(chat.clients)
 
 if __name__ == "__main__":
-    debug = True if environment.lower() in ["dev", "development"] else False
+    debug = True #if environment.lower() in ["dev", "development"] else False
     socketio.run(app, debug=debug, host="0.0.0.0" if debug else "127.0.0.1", port=5000)

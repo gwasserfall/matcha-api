@@ -1,13 +1,21 @@
 from collections.abc import MutableMapping
 from datetime import datetime
+from time import sleep
+
+
 
 import pymysql
 import config
 from datetime import datetime
 from copy import deepcopy
 
-# Connect to the database
-connection = pymysql.connect(**config.database)
+# Connect to the database with timeout
+while True:
+	try:
+		connection = pymysql.connect(**config.database)
+	except pymysql.err.OperationalError as e:
+		sleep(2)
+		print("Database connection not ready: ", str(e))
 
 class Field:
 	"""
