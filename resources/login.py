@@ -1,4 +1,7 @@
 from flask import request
+
+from flask import current_app as app
+
 from flask_restful import Resource
 from flask_jwt_extended import (
     JWTManager, 
@@ -10,6 +13,8 @@ from flask_jwt_extended import (
 
 from models.user import User
 
+from twisted.python import log
+
 from helpers import Arguments, is_email
 
 
@@ -19,6 +24,13 @@ class LoginResource(Resource):
 		args.string("username", required=True)
 		args.string("password", required=True)
 		args.validate()
+
+		log.msg("User " + args.username + "trying to sign in")
+
+		try:
+			print(app.penis)
+		except Exception:
+			pass
 
 		if is_email(args.username):
 			user = User.get(email=args.username)
