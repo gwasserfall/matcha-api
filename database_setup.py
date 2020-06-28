@@ -1,34 +1,63 @@
 import pymysql
 import config
+import copy
 
 from pprint import pprint
+
+# Create database if not exists
+conf = copy.deepcopy(config.database)
+conf.pop("db", None)
+
+with pymysql.connect(**conf) as db:
+	db._defer_warnings = True
+	db.execute("CREATE DATABASE IF NOT EXISTS matcha")
+	print("Creating database 'matcha' if it doesn't exist")
+
 
 db = pymysql.connect(**config.database)
 
 with db.cursor() as c:
+	c._defer_warnings = True
 	print("Creating table users.")
 	c.execute("""
 		CREATE TABLE IF NOT EXISTS users 
 		(
-			id 				INT AUTO_INCREMENT PRIMARY KEY,
-			fname			varchar(256)	NOT NULL,
-			lname			varchar(256),
-			email			varchar(256)	NOT NULL UNIQUE,
-			username		varchar(256)	NOT NULL UNIQUE,
-			passhash		LONGTEXT		NOT NULL,
-			bio				LONGTEXT,
-			gender			ENUM('male', 'female', 'other'),
-			dob				DATE,
-			longitude		DECIMAL(11, 8),
-			latitude		DECIMAL(11, 8),
-			heat			INT					DEFAULT (0),
-			online			TINYINT				DEFAULT (0),
-			date_joined		TIMESTAMP		DEFAULT CURRENT_TIMESTAMP,
-			date_lastseen	TIMESTAMP		DEFAULT CURRENT_TIMESTAMP,
-			deleted			TINYINT			DEFAULT (0)
+			id 						INT 						AUTO_INCREMENT PRIMARY KEY,
+			fname					varchar(256)		NOT NULL,
+			lname					varchar(256),
+			email					varchar(256)		NOT NULL UNIQUE,
+			email_verified BOOLEAN					DEFAULT (0),
+			username			varchar(256)		NOT NULL UNIQUE,
+			passhash			LONGTEXT				NOT NULL,
+			bio						LONGTEXT,
+			gender				ENUM('male', 'female', 'other'),
+			dob						DATE,
+			longitude			DECIMAL(11, 8),
+			latitude			DECIMAL(11, 8),
+			heat					INT							DEFAULT (0),
+			online			  BOOLEAN					DEFAULT (0),
+			date_joined		TIMESTAMP				DEFAULT CURRENT_TIMESTAMP,
+			date_lastseen	TIMESTAMP				DEFAULT CURRENT_TIMESTAMP,
+			deleted			  BOOLEAN					DEFAULT (0)
 		)
 	""")
 
+	
+	print("Creating table validations")
+	#REF1
+	c.execute("""
+		CREATE TABLE IF NOT EXISTS validations
+		(
+			id			INT				AUTO_INCREMENT PRIMARY KEY,
+			user_id		INT				NOT NULL,
+			code			LONGTEXT	NOT NULL
+		)
+	""")
+	
+	
+	quit()
+	
+	
 	print("Creating table images")
 	c.execute("""
 		CREATE TABLE IF NOT EXISTS images
@@ -39,7 +68,6 @@ with db.cursor() as c:
 			image_type	varchar(6)		NOT NULL
 		)
 	""")
-
 
 	print("Creating table user_preferences")
 	c.execute("""

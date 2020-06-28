@@ -1,7 +1,6 @@
 import hashlib
 import uuid
 
-from pprint import pprint
 from datetime import datetime
 
 from pymysql.err import IntegrityError
@@ -17,6 +16,7 @@ class User(Model):
 	email = Field(str)
 	username = Field(str)
 	passhash = Field(str, hidden=True)
+	email_verified = Field(bool, default=False)
 	bio = Field(str)
 	gender = Field(str)
 	dob = Field(datetime)
@@ -50,6 +50,15 @@ class User(Model):
 				self.db.commit()
 		else:
 			raise Exception("User not in database")
+
+	def destroy(self):
+		if self.id:
+			with self.db.cursor() as c:
+				c.execute("DELETE FROM users WHERE id=%s", self.id)
+				self.db.commit()
+		else:
+			raise Exception("User not in database")
+
 
 	def essential(self):
 		return {

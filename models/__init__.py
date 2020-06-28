@@ -9,13 +9,21 @@ import config
 from datetime import datetime
 from copy import deepcopy
 
+import atexit
+
 # Connect to the database with timeout
 while True:
 	try:
+		print("Connecting to database..")
 		connection = pymysql.connect(**config.database)
+		connection.autocommit(True)
+		print("Connected")
+		break
 	except pymysql.err.OperationalError as e:
 		sleep(2)
 		print("Database connection not ready: ", str(e))
+
+
 
 class Field:
 	"""
@@ -203,7 +211,7 @@ class Model(object):
 
 	Useful to hash and set a password for a user.
 	"""
-	def before_init(self, data):
+	def before_init(self, data=None):
 		pass
 
 	"""
@@ -224,11 +232,11 @@ class Model(object):
 				raise TypeError("Field {0} is not of type {1}".format(name, field.type.__name__))
 
 		query = """
-			REPLACE INTO users 
-				({0})
-			VALUES
+			REPLACE INTO {0}
 				({1})
-		""".format(", ".join(columns), ", ".join(["%s"] * len(values)))
+			VALUES
+				({2})
+		""".format(self.table_name, ", ".join(columns), ", ".join(["%s"] * len(values)))
 
 		with self.db.cursor() as c:
 			c.execute(query, tuple(values))
@@ -269,7 +277,7 @@ class Model(object):
 	"""
 	Get a model from the database, using a single keyword argument as a filter.
 
-	Class method allows you to use without instanciation eg.
+	Class method allows you to use without instantiation eg.
 
 		model = Model.get(username="test")
 

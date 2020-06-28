@@ -1,7 +1,10 @@
 from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import (
-    JWTManager, jwt_required, create_access_token, create_refresh_token,
+    JWTManager, 
+		jwt_required, 
+		create_access_token, 
+		create_refresh_token,
     get_jwt_identity
 )
 
@@ -22,13 +25,15 @@ class LoginResource(Resource):
 		else:
 			user = User.get(username=args.username)
 
-		if user and user.check_password(args.password):
+		if user and not user.email_verified:
+			return {"message" : "Account not validated"}, 401
+		elif user and user.check_password(args.password):
 			identity = {
 				"id" : user.id,
 				"username" : user.username,
 				"email" : user.email}
 			access_token = create_refresh_token(identity=identity)
-			return {"access_token" : access_token}, 200
+			return {"access_token" : access_token, "user": user}, 200
 
 		else:
 			return {"message" : "Failed to authenticate"}, 401	
