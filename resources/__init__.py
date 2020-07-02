@@ -6,5 +6,22 @@ from resources.validation import ValidationRetryResource
 from resources.verify_token import VerifyTokenResource
 
 from resources.login import LoginResource
+from resources.matches import MatchListResource, MatchResource
 
-__all__ = ["UserListResource", "UserResource", "LoginResource", "ValidationResource", "ValidationRetryResource", "VerifyTokenResource"]
+from resources.rating import RatingResource
+
+from resources.passwords import PasswordChangeResource, PasswordResetRequestResource
+
+__all__ = [
+    "UserListResource", 
+    "UserResource", 
+    "LoginResource", 
+    "ValidationResource", 
+    "ValidationRetryResource", 
+    "VerifyTokenResource",
+    "MatchListResource",
+    "MatchResource",
+    "RatingResource",
+    "PasswordChangeResource",
+    "PasswordResetRequestResource"
+  ]

@@ -91,10 +91,10 @@ class Arguments(object):
 			# Check max
 			if arg.max:
 				if arg.type in [int, float] and value > arg.max:
-					abort(400, message=arg.message or "{} does not meet maximum length requirement".format(arg.name))
+					abort(400, message=arg.message or "{} does not meet maximum length restriction".format(arg.name))
 					return False
 				if arg.type in [str] and len(value) > arg.max:
-					abort(400, message=arg.message or "{} does not meet maximum length requirement".format(arg.name))
+					abort(400, message=arg.message or "{} does not meet maximum length restriction".format(arg.name))
 					return False
 
 			# Check enum

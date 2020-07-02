@@ -27,11 +27,6 @@ class LoginResource(Resource):
 
 		log.msg("User " + args.username + "trying to sign in")
 
-		try:
-			print(app.penis)
-		except Exception:
-			pass
-
 		if is_email(args.username):
 			user = User.get(email=args.username)
 		else:

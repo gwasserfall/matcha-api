@@ -7,8 +7,6 @@ name: Deploy-Backend
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -19,15 +17,25 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
-
-    # Runs a single command using the runners shell
-    - name: Run a one-line script
-      run: mkdir /opt/matcha/backend/www/test
-
-    # Runs a set of commands using the runners shell
-    - name: Run a multi-line script
+    - name: Stop application
+      run: systemctl stop matcha-api
+        
+    - name: Pull latest repo
       run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+        cd /opt/matcha/backend/matcha-api
+        git pull origin master
+
+    - name: Install requirements
+      run: |
+        cd /opt/matcha/backend/matcha-api
+        pip3 install -r requirements.txt
+  
+    - name: Ensure database is up
+      run: |
+        cd /opt/matcha/backend/matcha-api
+        docker-compose up -d
+
+    - name: Ensure database is up
+      run: systemctl start matcha-api
+        
+  

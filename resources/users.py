@@ -3,9 +3,10 @@ from flask_restful import Resource, abort
 from flask_jwt_extended import get_jwt_identity
 from helpers import jwt_refresh_required
 
+from helpers.genders import genders
 from helpers.email import send_validation_email
 
-from models.user import User
+from models.user import User, get_full_user
 from models.validation import Validation
 
 import secrets
@@ -16,6 +17,8 @@ from helpers import Arguments
 class UserListResource(Resource):
 
     def get(self):
+
+        # Filtering should be here in something
 
         args = Arguments(request.json)
         args.date("dob", required=True)
@@ -35,6 +38,7 @@ class UserListResource(Resource):
         args.string("password", required=True, max=255)
         args.string("fname", required=True, min=1, max=255)
         args.string("lname", required=True, min=1, max=255)
+        #args.string("gender", required=True, enum=genders)
 
         # Validate method will abort with 400 if needed
         args.validate()
@@ -75,7 +79,7 @@ class UserResource(Resource):
         if not user:
             return {"message" : "User does not exist"}, 404
 
-        if user.id != current_user["id"]:
-            return user, 200
+        if user.id == current_user["id"]:
+            return get_full_user(user.id), 200
         else:
             return user, 200

@@ -30,15 +30,19 @@ with db.cursor() as c:
 			username			varchar(256)		NOT NULL UNIQUE,
 			passhash			LONGTEXT				NOT NULL,
 			bio						LONGTEXT,
-			gender				ENUM('male', 'female', 'other'),
+			gender				TEXT NOT NULL,
 			dob						DATE,
 			longitude			DECIMAL(11, 8),
 			latitude			DECIMAL(11, 8),
 			heat					INT							DEFAULT (0),
 			online			  BOOLEAN					DEFAULT (0),
+			preferences		LONGTEXT,
+			interests			LONGTEXT,
 			date_joined		TIMESTAMP				DEFAULT CURRENT_TIMESTAMP,
 			date_lastseen	TIMESTAMP				DEFAULT CURRENT_TIMESTAMP,
-			deleted			  BOOLEAN					DEFAULT (0)
+			deleted			  BOOLEAN					DEFAULT (0),
+			is_admin			  BOOLEAN					DEFAULT (0)
+			
 		)
 	""")
 
@@ -54,8 +58,18 @@ with db.cursor() as c:
 		)
 	""")
 	
-	
-	quit()
+	print("Creating table messages")
+	c.execute("""
+		CREATE TABLE IF NOT EXISTS messages
+		(
+			id			INT 				AUTO_INCREMENT PRIMARY KEY,
+			to_id		INT,
+			from_id		INT,
+			timestamp	DATETIME			DEFAULT CURRENT_TIMESTAMP,
+			message		TEXT,
+			seen		INT				DEFAULT(0)
+		)
+	""")
 	
 	
 	print("Creating table images")
@@ -63,34 +77,42 @@ with db.cursor() as c:
 		CREATE TABLE IF NOT EXISTS images
 		(
 			id			INT				AUTO_INCREMENT PRIMARY KEY,
+			is_primary BOOLEAN					DEFAULT (0),
 			user_id		INT				NOT NULL,
 			image64		LONGTEXT		NOT NULL,
 			image_type	varchar(6)		NOT NULL
 		)
-	""")
+	 """)
 
-	print("Creating table user_preferences")
+	print("Creating table global_interests")
 	c.execute("""
-		CREATE TABLE IF NOT EXISTS user_preferences
+		CREATE TABLE IF NOT EXISTS global_interests
 		(
-			id			INT AUTO_INCREMENT PRIMARY KEY,
-			user_id		INTEGER				NOT NULL,
-			interests	TEXT,
-			radius		INTEGER,
-			age_from	INTEGER				DEFAULT (18),
-			age_to		INTEGER				DEFAULT (122)
+			id				INT AUTO_INCREMENT PRIMARY KEY,
+			interest	TEXT
 		)
 	""")
 
-	print("Creating table gender_preference")
 	c.execute("""
-		CREATE TABLE IF NOT EXISTS gender_preference
-		(
-			id			INT AUTO_INCREMENT PRIMARY KEY,
-			user_id		INTEGER				NOT NULL,
-			gender		ENUM('male', 'female', 'other')
-		)
+	CREATE TABLE IF NOT EXISTS matches
+	(
+		id			INT 				AUTO_INCREMENT PRIMARY KEY,
+		date		DATETIME			DEFAULT CURRENT_TIMESTAMP,
+		matcher_id	INTEGER				NOT NULL,
+		matchee_id	INTEGER				NOT NULL,
+		rating		INTEGER				DEFAULT(0)
+	)
 	""")
+
+	# print("Creating table gender_preference")
+	# c.execute("""
+	# 	CREATE TABLE IF NOT EXISTS gender_preference
+	# 	(
+	# 		id			INT AUTO_INCREMENT PRIMARY KEY,
+	# 		user_id		INTEGER				NOT NULL,
+	# 		gender		ENUM('male', 'female', 'other')
+	# 	)
+	# """)
 
 # db.query("""
 # 	CREATE TABLE IF NOT EXISTS profile_view
@@ -102,16 +124,8 @@ with db.cursor() as c:
 # 	)
 # """)
 
-with db.cursor() as c:
-	c.execute("""
-		CREATE TABLE IF NOT EXISTS matches
-		(
-			id			INT 				AUTO_INCREMENT PRIMARY KEY,
-			date		DATETIME			DEFAULT CURRENT_TIMESTAMP,
-			matcher_id	INTEGER				NOT NULL,
-			matchee_id	INTEGER				NOT NULL
-		)
-	""")
+
+
 
 # db.query("""
 # 	CREATE TABLE IF NOT EXISTS user_blocks
@@ -134,19 +148,5 @@ with db.cursor() as c:
 # 		recieved	INTEGER				DEFAULT 0
 # 	)
 # """)
-
-with db.cursor() as c:
-	c.execute("""
-		CREATE TABLE IF NOT EXISTS messages
-		(
-			id			INT 				AUTO_INCREMENT PRIMARY KEY,
-			to_id		INT,
-			from_id		INT,
-			timestamp	DATETIME			DEFAULT CURRENT_TIMESTAMP,
-			message		TEXT,
-			seen		INT				DEFAULT(0)
-		)
-	""")
-
 
 

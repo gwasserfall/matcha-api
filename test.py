@@ -1,9 +1,3 @@
-from flask import Flask, render_template
+from chat import BroadcastServerFactory
 
-app = Flask(__name__)
-
-@app.route("/")
-def index():
-	return render_template("index.html", data="Hello")
-
-app.run(debug=True)
+print(dir(BroadcastServerFactory))

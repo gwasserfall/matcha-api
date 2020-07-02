@@ -287,23 +287,39 @@ class Model(object):
 	"""
 	@classmethod
 	def get(cls, **kwargs):
-		if len(kwargs) > 1:
-			return False
-		key = next(iter(kwargs))
-		val = kwargs[key]
-
 		temp = cls()
-		with temp.db.cursor() as c:
-			c.execute("""
-				SELECT 
-					{fields}
-				FROM 
-					{table} 
-				WHERE   {cond}=%s""".format(
-						fields = ", ".join(temp.fields.keys()),
-						table = cls.table_name,
-						cond = key), (val,))
+		
+		if len(kwargs) > 1:
+  			
+			keys = kwargs.keys()
+			where = " and ".join(["{0} = %s".format(x) for x in keys])
+			print(where, [kwargs[x] for x in keys])
+			with temp.db.cursor() as c:
+				query = """SELECT {0} FROM {1} WHERE {2}""".format(", ".join(temp.fields.keys()), cls.table_name, where)
+				with temp.db.cursor() as c:
+					c.execute(query, [kwargs[x] for x in keys])
+					data = c.fetchone()
+		else:
+			key = next(iter(kwargs))
+			val = kwargs[key]
+
 			
-			data = c.fetchone()
+			with temp.db.cursor() as c:
+				c.execute("""
+					SELECT 
+						{fields}
+					FROM 
+						{table} 
+					WHERE   {cond}=%s""".format(
+							fields = ", ".join(temp.fields.keys()),
+							table = cls.table_name,
+							cond = key), (val,))
+				
+				data = c.fetchone()
 
 		return cls(data) if data else False
+
+	def dump_fields(self):
+  		for key, value in self.fields.items():
+  				print(key, "=", value)
+  				
