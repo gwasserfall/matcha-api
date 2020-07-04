@@ -2,9 +2,9 @@ from flask import request
 
 from flask_restful import Resource
 from flask_jwt_extended import (
-    JWTManager,
-    jwt_required,
-    create_access_token,
+    JWTManager, 
+    jwt_required, 
+    create_access_token, 
     create_refresh_token,
     get_jwt_identity
 )
@@ -43,3 +43,7 @@ class RatingResource(Resource):
         match = Match.check_match(user["id"], user_id)
 
         return match or {"matched" : False, "liked" : False}, 200
+
+    
+
+	

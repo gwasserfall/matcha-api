@@ -13,11 +13,11 @@ from resources.rating import RatingResource
 from resources.passwords import PasswordChangeResource, PasswordResetRequestResource
 
 __all__ = [
-    "UserListResource",
-    "UserResource",
-    "LoginResource",
-    "ValidationResource",
-    "ValidationRetryResource",
+    "UserListResource", 
+    "UserResource", 
+    "LoginResource", 
+    "ValidationResource", 
+    "ValidationRetryResource", 
     "VerifyTokenResource",
     "MatchListResource",
     "MatchResource",

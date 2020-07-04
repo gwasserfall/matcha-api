@@ -36,10 +36,10 @@ class Field:
     hidden     : Hide this field from API enpoints, will be skipped when dict(model) is called
     modifiable : If False will raise and exception if this field is modified
     """
-    def __init__(self,
-                 typeof=str,
-                 default=None,
-                 fmt="%Y-%m-%d",
+    def __init__(self, 
+                 typeof=str, 
+                 default=None, 
+                 fmt="%Y-%m-%d", 
                  hidden=False,
                  modifiable=True
                  ):
@@ -87,7 +87,7 @@ class Model(object):
 
     Can take a dictionary or keyword args to fill the internal fields
 
-    eg:
+    eg: 
         model = Model({"name" : "test"})
             or
         model = Model(name="test")
@@ -169,7 +169,7 @@ class Model(object):
             super(Model, self).__setattr__(key, val)
         else:
             if key in self.fields:
-                if self.fields[key].modifiable:
+                if self.fields[key].modifiable: 
                     self.fields[key].value = val
                 else:
                     raise Exception("Cannot modify field '{}'".format(key))
@@ -185,7 +185,7 @@ class Model(object):
         pass
 
     """
-    Display model name and id when printed
+    Display model name and id when printed	
     """
     def __repr__(self):
         return "<Model:{0} '{1}'>".format(self.__class__.__name__, self.id)
@@ -288,9 +288,9 @@ class Model(object):
     @classmethod
     def get(cls, **kwargs):
         temp = cls()
-
+        
         if len(kwargs) > 1:
-
+              
             keys = kwargs.keys()
             where = " and ".join(["{0} = %s".format(x) for x in keys])
             print(where, [kwargs[x] for x in keys])
@@ -303,22 +303,23 @@ class Model(object):
             key = next(iter(kwargs))
             val = kwargs[key]
 
-
+            
             with temp.db.cursor() as c:
                 c.execute("""
-                    SELECT
+                    SELECT 
                         {fields}
-                    FROM
-                        {table}
+                    FROM 
+                        {table} 
                     WHERE   {cond}=%s""".format(
                             fields = ", ".join(temp.fields.keys()),
                             table = cls.table_name,
                             cond = key), (val,))
-
+                
                 data = c.fetchone()
 
         return cls(data) if data else False
 
     def dump_fields(self):
-        for key, value in self.fields.items():
-            print(key, "=", value)
+          for key, value in self.fields.items():
+                  print(key, "=", value)
+                  

@@ -4,9 +4,9 @@ from flask import current_app as app
 
 from flask_restful import Resource
 from flask_jwt_extended import (
-    JWTManager,
-    jwt_required,
-    create_access_token,
+    JWTManager, 
+    jwt_required, 
+    create_access_token, 
     create_refresh_token,
     get_jwt_identity
 )
@@ -31,7 +31,7 @@ class MatchListResource(Resource):
         user = get_jwt_identity()
 
         if Match.get(matchee_id=args.matchee_id, matcher_id=user["id"]):
-            return {"message" : "Already matched"}, 200
+            return {"message" : "Already matched"}, 200    
         try:
             match = Match(matchee_id=args.matchee_id, matcher_id=user["id"])
             match.save()
@@ -40,7 +40,7 @@ class MatchListResource(Resource):
         return {"message" : "Matched"}, 200
 
 
-
+    
     @jwt_refresh_required
     def get(self):
         """
@@ -64,7 +64,7 @@ class MatchListResource(Resource):
         ```json
 
             {"message" : "Not authorised"}
-
+        
         ```
 
         """
@@ -73,8 +73,8 @@ class MatchListResource(Resource):
         with db.cursor() as c:
             c.execute("""
             select * from users where id in (
-                select matchee_id
-                from matches
+                select matchee_id 
+                from matches 
                     WHERE matcher_id in (
                         select matchee_id from matches where matchee_id = 102
                     ) and matchee_id in (
@@ -84,7 +84,7 @@ class MatchListResource(Resource):
             """)
             for m in c.fetchall():
                 user = User.get(id=m["id"])
-
+                
                 matches.append(user)
         return matches
 
@@ -96,3 +96,5 @@ class MatchResource(Resource):
         match = Match.check_match(user["id"], user_id)
 
         return match or {"matched" : False, "liked" : False}, 200
+
+	

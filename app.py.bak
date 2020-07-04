@@ -74,8 +74,8 @@ def socket():
 
 # Close database connection on exit
 def close_connection():
-    print("Closing Database Connection")
-    connection.close()
+	print("Closing Database Connection")
+	connection.close()
 
 import atexit
 

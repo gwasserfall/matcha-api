@@ -56,32 +56,32 @@ import os
 
 @app.route("/")
 def documentation():
+  
+  docs = []
 
-    docs = []
+  for py in [os.path.join("resources", x) for x in os.listdir("resources") if "__" not in x and x.endswith("py")]:
+    with open(py) as f:
+        code = ast.parse(f.read())
 
-    for py in [os.path.join("resources", x) for x in os.listdir("resources") if "__" not in x and x.endswith("py")]:
-        with open(py) as f:
-            code = ast.parse(f.read())
-
-        for node in ast.walk(code):
-            if isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.Module)):
-                docstring = ast.get_docstring(node)
-                if docstring:
-
-                    endpoint = docstring.split("\n")[0]
-                    md = "\n".join(docstring.split("\n")[1:])
-                    print(md)
-                    docs.append(
-                      {
-                        "endpoint" : endpoint,
-                        "docstring" : markdown(md, extensions=['fenced_code', 'attr_list'])
-                      }
-                    )
-    return render_template("api-docs.html", docs=docs)
+    for node in ast.walk(code):
+        if isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.Module)):
+            docstring = ast.get_docstring(node)
+            if docstring:
+                
+                endpoint = docstring.split("\n")[0]
+                md = "\n".join(docstring.split("\n")[1:])
+                print(md)
+                docs.append(
+                  {
+                    "endpoint" : endpoint,
+                    "docstring" : markdown(md, extensions=['fenced_code', 'attr_list'])
+                  }
+                )
+  return render_template("api-docs.html", docs=docs)
 
 if __name__ == "__main__":
     debug = True if config.environment.lower() in ["dev", "development"] else False
-
+    
     log.startLogging(sys.stdout)
 
     wsgiResource = WSGIResource(reactor, reactor.getThreadPool(), app)

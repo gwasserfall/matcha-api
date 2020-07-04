@@ -6,4 +6,4 @@ from helpers.jwt_required_socket import jwt_required_socket
 import re
 
 def is_email(email):
-    return True if re.match(r"^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$", email) else False
+	return True if re.match(r"^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$", email) else False

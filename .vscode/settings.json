@@ -1,5 +1,10 @@
 {
     "python.pythonPath": "/usr/local/bin/python3",
     "python.formatting.provider": "black",
-    "sqltools.connections": []
+    "sqltools.connections": [],
+    "[python]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4  
+      }
 }
+
