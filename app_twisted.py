@@ -24,16 +24,15 @@ from helpers import jwt_refresh_required
 from helpers import ModelEncoder
 
 from pprint import pprint
-
 from config import environment
-
 import sys
 
+from sockets import get_server_factory, get_server_protocol
 from models import connection
-
 from resources import *
 
 app = Flask(__name__)
+
 
 
 CORS(app)
@@ -235,14 +234,13 @@ if __name__ == "__main__":
     
     log.startLogging(sys.stdout)
 
-    # create a Twisted Web resource for our WebSocket server
-    # with app.app_context():
-    #     wsFactory = MatchaServerFactory("ws://0.0.0.0:5000")
-    #     wsFactory.protocol = MatchaServerProtocol
-
     wsgiResource = WSGIResource(reactor, reactor.getThreadPool(), app)
-    wsFactory = MatchaServerFactory("ws://0.0.0.0:5000")
-    wsFactory.protocol = MatchaServerProtocol
+
+    MatchaServerFactoryA = get_server_factory(app)
+    MatchaServerProtocolA = get_server_protocol(app)
+
+    wsFactory = MatchaServerFactoryA("ws://0.0.0.0:5000")
+    wsFactory.protocol = MatchaServerProtocolA
 
 
     app.socks = wsFactory
