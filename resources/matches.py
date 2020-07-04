@@ -21,6 +21,9 @@ from helpers import Arguments, is_email, jwt_refresh_required
 class MatchListResource(Resource):
     @jwt_refresh_required
     def post(self):
+        """
+            Doc string to describe function
+        """
         args = Arguments(request.json)
         args.string("matchee_id", required=True)
         args.validate()
@@ -36,8 +39,28 @@ class MatchListResource(Resource):
             return {"message" : str(e)}, 500
         return {"message" : "Matched"}, 200
 
+
+    
     @jwt_refresh_required
     def get(self):
+        """
+        GET : /v1/matches (requires JWT)
+
+        Get matches user profiles for the currently logged in user
+
+        {:.nameofclass}
+        asdfasdfasdfasdf
+
+        asd # {#id .className attrName=attrValue class="class1 class2"}
+
+        ```json
+            [
+                {
+                    "id": 1,
+                }
+            ]
+        ```
+        """
         db = Match().db
         matches = []
         with db.cursor() as c:
@@ -53,11 +76,7 @@ class MatchListResource(Resource):
                 )
             """)
             for m in c.fetchall():
-                
                 user = User.get(id=m["id"])
-                print("user")
-                print(user)
-                print("asd")
                 
                 matches.append(user)
         return matches

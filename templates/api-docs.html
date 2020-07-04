@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Documentation</title>
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+  <style>
+
+    .endpoints {
+      width: 70vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 5rem;
+      margin: auto;
+    }
+
+    .endpoint {
+      width: 70%;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    code {
+      padding: 10px;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="endpoints">
+    <div class="header">
+      <h2>API Documentation for Matcha</h2>
+    </div>
+  {% for doc in docs %}
+    <div class="endpoint">
+      <div class="title">{{ doc.endpoint }}</div>
+      <div class="content">{{ doc.docstring | safe }}</div>
+    </div>
+  {% endfor%}
+</div>
+
+<script>hljs.initHighlightingOnLoad();</script>
+
+</body>
+</html>

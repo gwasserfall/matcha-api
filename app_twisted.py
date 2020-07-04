@@ -71,20 +71,38 @@ api.add_resource(RatingResource, "/rating/<int:user_id>")
 api.add_resource(PasswordResetRequestResource, "/reset-password-request")
 api.add_resource(PasswordChangeResource, "/reset-password")
 
+import ast
+from markdown import markdown
+import os
 
+@app.route("/socks")
+def socks():
+  return render_template("sockets.html")
 
+@app.route("/")
+def documentation():
+  
+  docs = []
 
+  for py in [os.path.join("resources", x) for x in os.listdir("resources") if "__" not in x and x.endswith("py")]:
+    with open(py) as f:
+        code = ast.parse(f.read())
 
-
-
-
-    # def broadcast(self, msg):
-    #     print("broadcasting message '{}' ..".format(msg))
-    #     print(self.clients)
-    #     for c in self.clients:
-    #         c.sendMessage(msg.encode('utf8'))
-    #         print("message sent to {}".format(c.peer))
-
+    for node in ast.walk(code):
+        if isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.Module)):
+            docstring = ast.get_docstring(node)
+            if docstring:
+                
+                endpoint = docstring.split("\n")[0]
+                md = "\n".join(docstring.split("\n")[1:])
+                print(md)
+                docs.append(
+                  {
+                    "endpoint" : endpoint,
+                    "docstring" : markdown(md, extensions=['fenced_code', 'attr_list'])
+                  }
+                )
+  return render_template("api-docs.html", docs=docs)
 
 import json
 from models import user
@@ -98,25 +116,31 @@ class MatchaServerProtocol(WebSocketServerProtocol):
     with app.app_context():
         if not isBinary:
             try:
-                req = json.loads(payload)
-
-                # Route message depending on method
-                self.routeMessage(req)
+                valid_request = self.factory.authenticated(json.loads(payload), self)
+                if valid_request:
+                  self.routeMessage(valid_request)
+                else:
+                  print("Request is not authenticated, dropping..")
             except Exception as e:
                 print("asdasdasd")
                 print(str(e))
 
   def routeMessage(self, req):
+    """
+    Only authenticated messages get routed
+    """
     method = req.get("method", None)
 
-    user = decode_token(req["token"])
+    print(f"{method} called")
 
-    if method == "authenticate":
-      self.factory.authenticate(req, self)
-    if method == "sendMessage":
+    if method == "register":
+      print("")
+    elif method == "message":
       self.factory.sendMessage(req)
-    if method == "pollOnline":
-      self.factory.pollOnline(req)
+    elif method == "pollOnline":
+      self.factory.pollOnline(self)
+    else:
+      print(f"Unknown method : {method}")
     
 
   def connectionLost(self, reason):
@@ -149,33 +173,56 @@ class MatchaServerFactory(WebSocketServerFactory):
       if len(user["sockets"]) == 0:
         self.online.remove(user)
 
+  def pollOnline(self, socket):
+    print("Poll Online")
+    payload = {
+      "method" : "pollOnline",
+      "content" : [{"id" : x["id"], "username" : x["username"]} for x in self.online]
+    }
+    socket.sendMessage(json.dumps(payload).encode("utf8"))
 
-  def get_online_user(self, username):
-    pass
-
-
-  def authenticate(self, req, socket):
+  def authenticated(self, req, socket):
     with app.app_context():
         try:
-            user = decode_token(req["token"])
+            user = decode_token(req["jwt"])
             username = user["identity"]["username"]
             user_id = user["identity"]["id"]
             on = list(filter(lambda x: x["username"] == username, self.online))
 
             if len(on) == 1:
-                on[0]["sockets"].append(socket)
+                if socket not in on[0]["sockets"]:
+                  on[0]["sockets"].append(socket) 
             else:
                 self.online.append({"username": username, "sockets": [socket], "id" : user_id})
+            
+            req["sender"] = user["identity"]
+            del req["jwt"]
+            return req
 
         except Exception as e:
-            print(str(e))
+            print("Exception thrown in authenticate", str(e))
             print("Could not authenticate")
+            return None
 
   def sendMessage(self, req):
+    """
+    Add message to database and send over socket if user is online
+    """
+    print("Message Request", req)
+    to = req["content"].get("to", None)
     for client in self.online:
-      for socket in client["sockets"]:
-        print("Sending message to ", client["username"])
-        socket.sendMessage(json.dumps({"method": "message"}).encode("utf8"))
+      if client["username"] == to or client["id"] == to:
+        # Client is online
+        payload = {
+          "method" : "message",
+          "content" : {
+            "from" : req["sender"]["username"],
+            "message" : req["content"]["message"]
+          }
+        }
+        for socket in client["sockets"]:
+          print("Sending message to online user", client["username"])
+          socket.sendMessage(json.dumps(payload).encode("utf8"))
 
 
 

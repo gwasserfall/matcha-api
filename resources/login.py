@@ -19,13 +19,18 @@ from helpers import Arguments, is_email
 
 
 class LoginResource(Resource):
+	"""
+		GET /v1/login
+
+		
+	"""
 	def post(self):
 		args = Arguments(request.json)
 		args.string("username", required=True)
 		args.string("password", required=True)
 		args.validate()
 
-		log.msg("User " + args.username + "trying to sign in")
+		log.msg("User " + args.username + " trying to sign in")
 
 		if is_email(args.username):
 			user = User.get(email=args.username)
