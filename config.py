@@ -18,3 +18,5 @@ database = {
 environment = os.getenv("ENV")
 
 frontend_uri = os.getenv("FRONTEND_URI")
+
+send_in_blue = os.getenv("SEND_IN_BLUE")
