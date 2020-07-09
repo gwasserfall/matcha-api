@@ -11,6 +11,7 @@ database = {
     "password"      : os.getenv("DB_PASSWORD"),
     "db"            : os.getenv("DB_DATABASE"),
     "charset"       : 'utf8mb4',
+    "autocommit"    : True,
     "cursorclass"   : DictCursor
 }
 

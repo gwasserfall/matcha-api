@@ -45,20 +45,24 @@ class User(Model):
     def delete(self):
 
         if self.id:
-            with self.db.cursor() as c:
+            connection = self.pool.get_conn()
+            with connection.cursor() as c:
                 c.execute("""
                         UPDATE {0} SET deleted = 1
                          WHERE id='{1}'
                 """.format(self.table_name, self.id))
-                self.db.commit()
+                connection.commit()
+            self.pool.release(connection)
         else:
             raise Exception("User not in database")
 
     def destroy(self):
         if self.id:
-            with self.db.cursor() as c:
+            connection = self.pool.get_conn()
+            with connection.cursor() as c:
                 c.execute("DELETE FROM users WHERE id=%s", self.id)
-                self.db.commit()
+                connection.commit()
+            self.pool.release(connection)
         else:
             raise Exception("User not in database")
 
@@ -81,8 +85,6 @@ def deserialise_interests(interests):
     return [{"key" : x.strip().lower(), "value" : x.strip()}  for x in interests.split(",")]
 
 
-from pprint import pprint
-
 def get_full_user(id):
     user = User.get(id=id)
 
@@ -90,17 +92,5 @@ def get_full_user(id):
 
     # Get the images for that user
     user.append_field("images", Field(list, images))
-
-
-
-
-    # # Hack it in there boi
-    # with user.db.cursor() as c:
-    #     c.execute("""
-    #             SELECT interests FROM user_interests WHERE user_id=%s
-    #     """, user.id)
-
-    #     interests = deserialise_interests(c.fetchone()["interests"])
-    #     user.fields["interests"] = Field(default=interests)
 
     return user

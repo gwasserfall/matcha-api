@@ -1,32 +1,12 @@
 from collections.abc import MutableMapping
 from datetime import datetime
-from time import sleep
+# from time import sleep
 
-
-
-import pymysql
+# import pymysql
 import config
 from datetime import datetime
 from copy import deepcopy
-
-import atexit
-
-# Connect to the database with timeout
-tries = 0
-while True:
-    tries += 1
-    try:
-        print("Connecting to database..")
-        connection = pymysql.connect(**config.database)
-        connection.autocommit(True)
-        print("Connected")
-        break
-    except pymysql.err.OperationalError as e:
-        sleep(2)
-        print("Database connection not ready: ", str(e))
-    if tries > 6:
-        raise Exception("No database connection found. Please check if mysql is running")
-
+from database import pool
 
 class Field:
     """
@@ -86,7 +66,8 @@ class Model(object):
     """
 
     """PyMySQL database connection, config.py for settings"""
-    db = connection
+    db = None
+    pool = pool
 
     """Every model should override this with the correct table name"""
     table_name = None
@@ -247,6 +228,7 @@ class Model(object):
             print("Pre-Save for model", self.table_name, "has failed", str(e))
             raise        
 
+        connection = self.pool.get_conn()
 
         columns = []
         values = []
@@ -267,9 +249,11 @@ class Model(object):
                 ({2})
         """.format(self.table_name, ", ".join(columns), ", ".join(["%s"] * len(values)))
 
-        with self.db.cursor() as c:
+        with connection.cursor() as c:
             c.execute(query, tuple(values))
-            self.db.commit()
+            connection.commit()
+
+        self.pool.release(connection)
 
 
     """
@@ -293,14 +277,18 @@ class Model(object):
     @Exception raised when an id is not present.
     """
     def delete(self):
+        connection = self.pool.get_conn()
         if self.id:
-            with self.db.cursor() as c:
+            with connection.cursor() as c:
                 c.execute("""
                     DELETE FROM {0} WHERE id='{1}'
                 """.format(self.table_name, self.id))
-                self.db.commit()
+                connection.commit()
+            self.pool.release(connection)
         else:
+            self.pool.release(connection)
             raise Exception("User not in database")
+        
 
 
     """
@@ -312,28 +300,27 @@ class Model(object):
 
     Returns a populated user instance on success and False if the row count was 0
 
-    TODO:: Allow more conditions in where clause using kwargs
     """
     @classmethod
     def get(cls, **kwargs):
         temp = cls()
+        connection = cls().pool.get_conn()
 
         if len(kwargs) > 1:
-
+    
             keys = kwargs.keys()
             where = " and ".join(["{0} = %s".format(x) for x in keys])
-            print(where, [kwargs[x] for x in keys])
-            with temp.db.cursor() as c:
+            with connection.cursor() as c:
                 query = """SELECT {0} FROM {1} WHERE {2}""".format(", ".join(temp.fields.keys()), cls.table_name, where)
-                with temp.db.cursor() as c:
-                    c.execute(query, [kwargs[x] for x in keys])
-                    data = c.fetchone()
+                # with connection.cursor() as c:
+                c.execute(query, [kwargs[x] for x in keys])
+                data = c.fetchone()
         else:
             key = next(iter(kwargs))
             val = kwargs[key]
 
 
-            with temp.db.cursor() as c:
+            with connection.cursor() as c:
                 c.execute("""
                     SELECT
                         {fields}
@@ -346,18 +333,20 @@ class Model(object):
 
                 data = c.fetchone()
 
+        temp.pool.release(connection)
         return cls(data) if data else False
 
     @classmethod
     def get_many(cls, **kwargs):
         temp = cls()
+        connection = temp.pool.get_conn()
 
         key = next(iter(kwargs))
         val = kwargs[key]
 
         results = []
 
-        with temp.db.cursor() as c:
+        with connection.cursor() as c:
             c.execute("""
                 SELECT
                     {fields}
@@ -373,6 +362,7 @@ class Model(object):
             for item in data:
                 results.append(cls(item))
 
+        temp.pool.release(connection)
         return results
 
     def dump_fields(self):

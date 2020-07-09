@@ -31,6 +31,9 @@ class Arguments(object):
         else:
             self.request = request
 
+    def dict(self, name, **kwargs):
+        self.arguments.append(Arg(name, dict, **kwargs))
+
     def string(self, name, **kwargs):
         self.arguments.append(Arg(name, str, **kwargs))
 

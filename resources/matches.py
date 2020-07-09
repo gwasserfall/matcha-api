@@ -68,9 +68,10 @@ class MatchListResource(Resource):
         ```
 
         """
-        db = Match().db
+        temp = Match()
+        connection = temp.pool.get_conn()
         matches = []
-        with db.cursor() as c:
+        with connection.cursor() as c:
             c.execute("""
             select * from users where id in (
                 select matchee_id
@@ -84,7 +85,6 @@ class MatchListResource(Resource):
             """)
             for m in c.fetchall():
                 user = User.get(id=m["id"])
-
                 matches.append(user)
         return matches
 

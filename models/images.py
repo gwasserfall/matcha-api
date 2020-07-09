@@ -12,7 +12,8 @@ class Image(Model):
     image_type = Field(str)
 
     def before_save(self):
-        with self.db.cursor() as c:
+        connection = self.pool.get_conn()
+        with connection.cursor() as c:
             c.execute("""SELECT COUNT(*) as image_count FROM images WHERE user_id=%s""", (self.user_id))
             result = c.fetchone()
             if result.get("image_count", 0) >= 5 and not self.id:

@@ -72,18 +72,40 @@ class UserListResource(Resource):
 class UserResource(Resource):
     @jwt_refresh_required
     def get(self, id):
-
+        
         current_user = get_jwt_identity()
         user = User.get(id=id)
+        
 
         if not user:
             return {"message" : "User does not exist"}, 404
 
-        print("User with id", current_user["id"])
-
         if user.id == current_user["id"]:
-            print("getting full user")
+            
             return get_full_user(user.id), 200
         else:
-            print("getting another user")
             return user, 200
+
+    @jwt_refresh_required
+    def put(self, id):
+        args = Arguments(request.json)
+        args.dict("user", required=True)
+        args.validate()
+
+        current_user = get_jwt_identity()
+        user = User.get(id=id)
+
+        if not user or current_user["id"] != id:
+            return {"message" : "You are not authorized to edit this profile"}, 401
+
+        # Remove unuseable fields
+        del args.user["id"]
+        del args.user["images"]
+        args.user["preferences"] = [x["value"] for x in args.user["preferences"]]
+        user.update(args.user)
+
+        try:
+            user.save()
+            return {"message": "User updated"}, 200
+        except Exception as e:
+            return {"message": str(e)}, 200

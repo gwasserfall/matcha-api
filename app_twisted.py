@@ -14,7 +14,7 @@ from flask import Flask, render_template, request, jsonify, make_response
 from flask_jwt_extended import JWTManager, decode_token
 
 import config
-from models import connection
+# from models import connection
 from helpers import ModelEncoder
 from helpers import jwt_refresh_required
 from sockets import get_server_factory, get_server_protocol
@@ -95,8 +95,24 @@ def documentation():
                     )
     return render_template("api-docs.html", docs=docs)
 
+from database import pool
+
+from time import sleep
+
+import sys
+
+
+def shutdown_server():
+    pool.destroy()
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+    os.kill(-os.getpgid(os.getpid()), signal.SIGINT)
+
+
 if __name__ == "__main__":
     debug = True if config.environment.lower() in ["dev", "development"] else False
+
+    # Init the database pool
+    pool.init()
 
     log.startLogging(sys.stdout)
 
@@ -118,6 +134,7 @@ if __name__ == "__main__":
 
     site = Site(rootResource)
 
-    signal.signal(signal.SIGINT, signal.default_int_handler)
+    reactor.addSystemEventTrigger('before', 'shutdown', shutdown_server)
+    # signal.signal(signal.SIGINT, signal.default_int_handler)
     reactor.listenTCP(5000, site)
     reactor.run()
