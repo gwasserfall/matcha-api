@@ -1,8 +1,7 @@
+from models.images import Image
 
 
-def get_class():
 
-    class Hello():
-        def __init__(self):
-            print("init")
-            pass
+img = Image(user_id=102, image64="sjadnlfkjsnadklf", image_type="png")
+
+img.save()

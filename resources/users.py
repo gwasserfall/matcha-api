@@ -73,13 +73,17 @@ class UserResource(Resource):
     @jwt_refresh_required
     def get(self, id):
 
-        current_user = get_jwt_identity() or {"id" : 1}
+        current_user = get_jwt_identity()
         user = User.get(id=id)
 
         if not user:
             return {"message" : "User does not exist"}, 404
 
+        print("User with id", current_user["id"])
+
         if user.id == current_user["id"]:
+            print("getting full user")
             return get_full_user(user.id), 200
         else:
+            print("getting another user")
             return user, 200

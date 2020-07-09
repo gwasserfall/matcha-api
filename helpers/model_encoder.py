@@ -7,8 +7,6 @@ from models import Model
 class ModelEncoder(JSONEncoder):
     def default(self, obj):
 
-        print("JSON Encoding", type(obj), obj)
-
         if isinstance(obj, Model):
             return dict(obj)
 

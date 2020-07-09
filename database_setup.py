@@ -20,42 +20,41 @@ with db.cursor() as c:
     c._defer_warnings = True
     print("Creating table users.")
     c.execute("""
-            CREATE TABLE IF NOT EXISTS users
-            (
-                    id                                              INT                                             AUTO_INCREMENT PRIMARY KEY,
-                    fname                                   varchar(256)            NOT NULL,
-                    lname                                   varchar(256),
-                    email                                   varchar(256)            NOT NULL UNIQUE,
-                    email_verified BOOLEAN                                  DEFAULT (0),
-                    username                        varchar(256)            NOT NULL UNIQUE,
-                    passhash                        LONGTEXT                                NOT NULL,
-                    bio                                             LONGTEXT,
-                    gender                          TEXT NOT NULL,
-                    dob                                             DATE,
-                    longitude                       DECIMAL(11, 8),
-                    latitude                        DECIMAL(11, 8),
-                    heat                                    INT                                                     DEFAULT (0),
-                    online                    BOOLEAN                                       DEFAULT (0),
-                    preferences             LONGTEXT,
-                    interests                       LONGTEXT,
-                    date_joined             TIMESTAMP                               DEFAULT CURRENT_TIMESTAMP,
-                    date_lastseen   TIMESTAMP                               DEFAULT CURRENT_TIMESTAMP,
-                    deleted                   BOOLEAN                                       DEFAULT (0),
-                    is_admin                          BOOLEAN                                       DEFAULT (0)
-
-            )
+        CREATE TABLE IF NOT EXISTS users
+        (
+            id                  INT                 AUTO_INCREMENT PRIMARY KEY,
+            fname               varchar(256)        NOT NULL,
+            lname               varchar(256),
+            email               varchar(256)        NOT NULL UNIQUE,
+            email_verified      BOOLEAN             DEFAULT (0),
+            username            varchar(256)        NOT NULL UNIQUE,
+            passhash            LONGTEXT            NOT NULL,
+            bio                 LONGTEXT,
+            gender              TEXT,
+            dob                 DATE,
+            longitude           DECIMAL(11, 8),
+            latitude            DECIMAL(11, 8),
+            heat                INT                 DEFAULT (0),
+            online              BOOLEAN             DEFAULT (0),
+            preferences         LONGTEXT,
+            interests           LONGTEXT,
+            date_joined         TIMESTAMP           DEFAULT CURRENT_TIMESTAMP,
+            date_lastseen       TIMESTAMP           DEFAULT CURRENT_TIMESTAMP,
+            deleted             BOOLEAN             DEFAULT (0),
+            is_admin            BOOLEAN             DEFAULT (0)
+        )
     """)
 
 
     print("Creating table validations")
     #REF1
     c.execute("""
-            CREATE TABLE IF NOT EXISTS validations
-            (
-                    id                      INT                             AUTO_INCREMENT PRIMARY KEY,
-                    user_id         INT                             NOT NULL,
-                    code                    LONGTEXT        NOT NULL
-            )
+        CREATE TABLE IF NOT EXISTS validations
+        (
+            id          INT          AUTO_INCREMENT PRIMARY KEY,
+            user_id     INT          NOT NULL,
+            code        LONGTEXT     NOT NULL
+        )
     """)
 
     print("Creating table messages")

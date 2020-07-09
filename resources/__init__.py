@@ -12,6 +12,10 @@ from resources.rating import RatingResource
 
 from resources.passwords import PasswordChangeResource, PasswordResetRequestResource
 
+from resources.images import ImageListResource
+
+from resources.info import GenderListResource
+
 __all__ = [
     "UserListResource",
     "UserResource",
@@ -23,5 +27,7 @@ __all__ = [
     "MatchResource",
     "RatingResource",
     "PasswordChangeResource",
-    "PasswordResetRequestResource"
+    "PasswordResetRequestResource",
+    "ImageListResource",
+    "GenderListResource"
   ]

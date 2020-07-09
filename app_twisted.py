@@ -10,7 +10,7 @@ from autobahn.twisted.resource import WebSocketResource, WSGIRootResource
 
 from flask_cors import CORS
 from flask_restful import Resource, Api
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify, make_response
 from flask_jwt_extended import JWTManager, decode_token
 
 import config
@@ -20,6 +20,8 @@ from helpers import jwt_refresh_required
 from sockets import get_server_factory, get_server_protocol
 
 from resources import *
+
+from models.user import User
 
 app = Flask(__name__)
 
@@ -50,9 +52,23 @@ api.add_resource(RatingResource, "/rating/<int:user_id>")
 api.add_resource(PasswordResetRequestResource, "/reset-password-request")
 api.add_resource(PasswordChangeResource, "/reset-password")
 
+api.add_resource(ImageListResource, "/images")
+api.add_resource(GenderListResource, "/info/genders")
+
 import ast
 from markdown import markdown
 import os
+
+import simplejson as json
+
+@app.route("/test")
+def test():
+    user = User.get(id=1)
+    response = make_response(json.dumps(user, default=ModelEncoder().default))
+    response.headers['Content-Type'] = 'application/json'
+    
+    return response
+
 
 @app.route("/")
 def documentation():

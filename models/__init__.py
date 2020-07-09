@@ -12,7 +12,9 @@ from copy import deepcopy
 import atexit
 
 # Connect to the database with timeout
+tries = 0
 while True:
+    tries += 1
     try:
         print("Connecting to database..")
         connection = pymysql.connect(**config.database)
@@ -22,7 +24,8 @@ while True:
     except pymysql.err.OperationalError as e:
         sleep(2)
         print("Database connection not ready: ", str(e))
-
+    if tries > 6:
+        raise Exception("No database connection found. Please check if mysql is running")
 
 
 class Field:
@@ -38,15 +41,15 @@ class Field:
     """
     def __init__(self,
                  typeof=str,
+                 value=None,
                  default=None,
                  fmt="%Y-%m-%d",
                  hidden=False,
-                 modifiable=True
-                 ):
+                 modifiable=True):
         self.modifiable = modifiable
         self.type = typeof
         self.hidden = hidden
-        self.value = default
+        self.value = value or default
         self.fmt = fmt
 
 
@@ -63,13 +66,19 @@ class Field:
         if self.type == datetime and self.value:
             return self.value.strftime(self.fmt)
 
+        if self.type == list and self.value:
+            return ",".join(self.value)
+
         return self.value
 
     """
     Serialise a database item into a python object
     """
     def serialize(self, value):
-        self.value = value
+        if self.type == list and value:
+            self.value = value.split(",")
+        else:
+            self.value = value
 
 class Model(object):
     """
@@ -176,6 +185,11 @@ class Model(object):
             else:
                 raise AttributeError("Field {0} does not exist in Model {1}".format(key, self.__class__.__name__))
 
+    def append_field(self, key, value):
+        self.fields[key] = value 
+        print(self.fields)
+
+
     """
     TODO: Allow the deletion of Field.value using del()
 
@@ -214,11 +228,26 @@ class Model(object):
     def before_init(self, data=None):
         pass
 
+
+    """
+    Perform a check or function before a model is saved
+    """
+    def before_save(self, *args, **kwargs):
+        pass
+
+
     """
     Save this model to the database, REPLACE INTO is used to avoid having multiple
     database calls. Will insert if the row does not exist or update if it does.
     """
     def save(self):
+        try:
+            self.before_save()
+        except Exception as e:
+            print("Pre-Save for model", self.table_name, "has failed", str(e))
+            raise        
+
+
         columns = []
         values = []
 
@@ -318,6 +347,33 @@ class Model(object):
                 data = c.fetchone()
 
         return cls(data) if data else False
+
+    @classmethod
+    def get_many(cls, **kwargs):
+        temp = cls()
+
+        key = next(iter(kwargs))
+        val = kwargs[key]
+
+        results = []
+
+        with temp.db.cursor() as c:
+            c.execute("""
+                SELECT
+                    {fields}
+                FROM
+                    {table}
+                WHERE   {cond}=%s""".format(
+                        fields = ", ".join(temp.fields.keys()),
+                        table = cls.table_name,
+                        cond = key), (val,))
+
+            data = c.fetchall()
+
+            for item in data:
+                results.append(cls(item))
+
+        return results
 
     def dump_fields(self):
         for key, value in self.fields.items():

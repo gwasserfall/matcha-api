@@ -3,7 +3,7 @@ from flask import request
 
 import config
 
-m = Mailin("https://api.sendinblue.com/v2.0","3dZMP4wFpmhHX80b")
+m = Mailin("https://api.sendinblue.com/v2.0", config.send_in_blue)
 
 def send_mail(name, email, subject, body):
     data = {

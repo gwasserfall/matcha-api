@@ -8,7 +8,7 @@ services:
     ports:
       - 127.0.0.1:3306:3306
     volumes:
-      - mysql_db_data_container:/var/lib/mysql
+      - mysql_db_data_container_vol:/var/lib/mysql
   adminer_container:
     image: adminer:latest
     environment:
@@ -17,4 +17,4 @@ services:
       - 127:0.0.1:8081:8080
 
 volumes:
-  mysql_db_data_container:
+  mysql_db_data_container_vol:

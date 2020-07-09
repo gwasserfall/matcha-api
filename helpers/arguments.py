@@ -8,13 +8,14 @@ class Arg(object):
     def __init__(self, name, _type, **kwargs):
         self.name = name
         self.type = _type
-        self.required = kwargs.get("required", None)
-        self.message = kwargs.get("message", None)
+        self.required = kwargs.get("required", False)
+        self.message = kwargs.get("message", False)
         self.min = kwargs.get("min", None)
         self.max = kwargs.get("max", None)
         self.enum = kwargs.get("enum", None)
         self.regex = kwargs.get("regex", None)
         self.email = kwargs.get("email", False)
+        self.boolean = kwargs.get("boolean", False)
 
     def __repr__(self):
         return "<Argument: '{}'>".format(self.name)
@@ -38,6 +39,9 @@ class Arguments(object):
 
     def decimal(self, name, **kwargs):
         self.arguments.append(Arg(name, float, **kwargs))
+
+    def boolean(self, name, **kwargs):
+        self.arguments.append(Arg(name, bool, **kwargs))
 
     def enum(self, name, enum, **kwargs):
         self.arguments.append(Arg(name, list, enum=enum, **kwargs))
@@ -70,9 +74,12 @@ class Arguments(object):
                     if type(value) is not str:
                         raise ValueError
                     self.__setattr__(arg.name, datetime.strptime(value, "%Y-%m-%d"))
-
+                
+                elif arg.type is int and value == None or value == "":
+                    pass
                 elif arg.type is not list:
                     self.__setattr__(arg.name, arg.type(value))
+
 
             except ValueError as e:
                 # abort here

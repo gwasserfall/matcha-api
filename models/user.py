@@ -5,6 +5,7 @@ from datetime import datetime
 
 from pymysql.err import IntegrityError
 from models import Model, Field
+from models.images import Image
 
 class User(Model):
 
@@ -25,6 +26,7 @@ class User(Model):
     heat = Field(int)
     online = Field(bool)
     date_lastseen = Field(datetime)
+    preferences = Field(list)
     deleted = Field(bool, modifiable=False, hidden=True)
     is_admin = Field(bool)
 
@@ -63,28 +65,14 @@ class User(Model):
 
     def essential(self):
         return {
-                "id" : self.id,
-                "fname" : self.fname,
-                "lname" : self.lname
+            "id" : self.id,
+            "fname" : self.fname,
+            "lname" : self.lname
         }
 
     @classmethod
     def get_matches(cls, user_id):
         pass
-
-# {
-#       photos: [],
-#       fname: '',
-#       lname: '',
-#       dob: '',
-#       gender: '',
-#       longitude: '',
-#       latitude: '',
-#       bio: '',
-#       interests: [],
-#       preferences: []
-# }
-
 
 def serialise_interests(interests):
     return ",".join(interests)
@@ -93,16 +81,26 @@ def deserialise_interests(interests):
     return [{"key" : x.strip().lower(), "value" : x.strip()}  for x in interests.split(",")]
 
 
+from pprint import pprint
+
 def get_full_user(id):
     user = User.get(id=id)
 
-    # Hack it in there boi
-    with user.db.cursor() as c:
-        c.execute("""
-                SELECT interests FROM user_interests WHERE user_id=%s
-        """, user.id)
+    images = Image.get_many(user_id=id)
 
-        interests = deserialise_interests(c.fetchone()["interests"])
-        user.fields["interests"] = Field(default=interests)
+    # Get the images for that user
+    user.append_field("images", Field(list, images))
+
+
+
+
+    # # Hack it in there boi
+    # with user.db.cursor() as c:
+    #     c.execute("""
+    #             SELECT interests FROM user_interests WHERE user_id=%s
+    #     """, user.id)
+
+    #     interests = deserialise_interests(c.fetchone()["interests"])
+    #     user.fields["interests"] = Field(default=interests)
 
     return user
