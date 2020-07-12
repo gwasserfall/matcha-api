@@ -1,5 +1,5 @@
 from collections.abc import MutableMapping
-from datetime import datetime
+from datetime import datetime, date
 # from time import sleep
 
 # import pymysql
@@ -43,8 +43,9 @@ class Field:
     Return value that is safe for SQL insert.
     """
     def deserialize(self):
-        if self.type == datetime and self.value:
-            return self.value.strftime(self.fmt)
+
+        # if self.type == datetime and self.value:
+        #     return self.value.strftime(self.fmt)
 
         if self.type == list and self.value:
             return ",".join(self.value)
@@ -168,7 +169,7 @@ class Model(object):
 
     def append_field(self, key, value):
         self.fields[key] = value 
-        print(self.fields)
+        #print(self.fields)
 
 
     """
@@ -249,6 +250,9 @@ class Model(object):
                 ({2})
         """.format(self.table_name, ", ".join(columns), ", ".join(["%s"] * len(values)))
 
+        # print(query)
+        # print(values)
+
         with connection.cursor() as c:
             c.execute(query, tuple(values))
             connection.commit()
@@ -267,6 +271,7 @@ class Model(object):
 
         if data:
             for k, v in data.items():
+                #print(f"updating {k} to {v}")
                 self[k] = v
         else:
             raise Exception("Nothing to update")

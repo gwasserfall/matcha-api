@@ -26,6 +26,7 @@ class User(Model):
     heat = Field(int)
     online = Field(bool)
     date_lastseen = Field(datetime)
+    interests = Field(list)
     preferences = Field(list)
     deleted = Field(bool, modifiable=False, hidden=True)
     is_admin = Field(bool)

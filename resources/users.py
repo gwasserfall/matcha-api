@@ -13,6 +13,7 @@ import secrets
 
 from helpers import Arguments
 
+import traceback
 
 class UserListResource(Resource):
 
@@ -99,13 +100,26 @@ class UserResource(Resource):
             return {"message" : "You are not authorized to edit this profile"}, 401
 
         # Remove unuseable fields
-        del args.user["id"]
-        del args.user["images"]
-        args.user["preferences"] = [x["value"] for x in args.user["preferences"]]
+        if "id" in args.user:
+            del args.user["id"]
+        if "images" in args.user:
+            del args.user["images"]
+        
+        try:
+            args.user["interests"] = args.user["interests"] if args.user["interests"] else ""
+        
+        except Exception:
+            pass
+
+        try:
+            args.user["preferences"] = args.user["preferences"] if args.user["preferences"] else ""
+        except Exception:
+            pass
         user.update(args.user)
 
         try:
+            #print(user.dump_fields())
             user.save()
             return {"message": "User updated"}, 200
         except Exception as e:
-            return {"message": str(e)}, 200
+            return {"message": str(e)}, 400

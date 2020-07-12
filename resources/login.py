@@ -11,7 +11,7 @@ from flask_jwt_extended import (
     get_jwt_identity
 )
 
-from models.user import User
+from models.user import User, get_full_user
 
 from twisted.python import log
 
@@ -70,7 +70,7 @@ class LoginResource(Resource):
                     "username" : user.username,
                     "email" : user.email}
             access_token = create_refresh_token(identity=identity)
-            return {"access_token" : access_token, "user": user}, 200
+            return {"access_token" : access_token, "user": get_full_user(user.id)}, 200
 
         else:
             return {"message" : "Failed to authenticate"}, 401

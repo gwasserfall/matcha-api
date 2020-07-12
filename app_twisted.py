@@ -54,6 +54,10 @@ api.add_resource(PasswordChangeResource, "/reset-password")
 
 api.add_resource(ImageListResource, "/images")
 api.add_resource(GenderListResource, "/info/genders")
+api.add_resource(InterestsListResource, "/info/interests")
+
+api.add_resource(DiscoveryListResource, "/discovery")
+
 
 import ast
 from markdown import markdown
@@ -86,7 +90,7 @@ def documentation():
 
                     endpoint = docstring.split("\n")[0]
                     md = "\n".join(docstring.split("\n")[1:])
-                    print(md)
+                    
                     docs.append(
                       {
                         "endpoint" : endpoint,

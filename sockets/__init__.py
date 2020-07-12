@@ -9,11 +9,18 @@ from autobahn.twisted.websocket import WebSocketServerFactory, WebSocketServerPr
 def get_server_protocol(app):
 
     class MatchaServerProtocol(WebSocketServerProtocol):
+        def onConnect(self, request):
+            print("Client connecting: {0}".format(request.peer))
+
+        def onOpen(self):
+            print("WebSocket connection open.")
 
         def onMessage(self, payload, isBinary):
             with app.app_context():
                 if not isBinary:
                     try:
+
+                        print(f"Payload = {payload}")
                         valid_request = self.factory.authenticated(json.loads(payload), self)
                         if valid_request:
                             self.routeMessage(valid_request)

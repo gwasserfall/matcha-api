@@ -14,7 +14,9 @@ from resources.passwords import PasswordChangeResource, PasswordResetRequestReso
 
 from resources.images import ImageListResource
 
-from resources.info import GenderListResource
+from resources.info import GenderListResource, InterestsListResource
+
+from resources.discover import DiscoveryListResource
 
 __all__ = [
     "UserListResource",
@@ -29,5 +31,7 @@ __all__ = [
     "PasswordChangeResource",
     "PasswordResetRequestResource",
     "ImageListResource",
-    "GenderListResource"
+    "GenderListResource",
+    "InterestsListResource",
+    "DiscoveryListResource"
   ]

@@ -1,9 +1,0 @@
-Server:
-    Methods:
-        
-
-    BaseFlow:
-        onMessage -> authenticated -> method
-
-
-Client:
