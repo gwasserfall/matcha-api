@@ -48,7 +48,6 @@ class PasswordChangeResource(Resource):
         args.validate()
 
         if args.code != "None":
-            print("Args code exists??")
             validation = Validation.get(code=args.code)
             if validation:
                 user = User.get(id=validation.user_id)
@@ -67,8 +66,6 @@ class PasswordChangeResource(Resource):
                 return {"message": "Previous password required"}, 400
 
             user = User.get(id=args.user_id)
-
-            print(user)
 
             if user and user.check_password(args.previous_password):
                 user.passhash = user.hash_password(args.new_password)

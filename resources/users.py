@@ -115,6 +115,24 @@ class UserResource(Resource):
             args.user["preferences"] = args.user["preferences"] if args.user["preferences"] else ""
         except Exception:
             pass
+
+        print(dict(args))
+
+
+        mail = args.user.get("email", None)
+
+        if mail and mail != user.email:
+            
+            return {"WHAT" : "ARE YOU DOING?"}, 200
+            user.email_verified = False
+            try:
+                validation = Validation(user_id=user.id, code=secrets.token_urlsafe(256))
+                validation.save()
+                send_validation_email(user, validation.code)
+            except Exception as e:
+                return {"message" : str(e)}, 500
+
+
         user.update(args.user)
 
         try:
@@ -123,3 +141,11 @@ class UserResource(Resource):
             return {"message": "User updated"}, 200
         except Exception as e:
             return {"message": str(e)}, 400
+
+
+class CurrentUserResource(Resource):
+    @jwt_refresh_required
+    def get(self):
+        current_user = get_jwt_identity()
+
+        return get_full_user(current_user["id"]), 200 

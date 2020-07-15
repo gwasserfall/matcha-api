@@ -67,6 +67,8 @@ class User(Model):
         else:
             raise Exception("User not in database")
 
+    def unverify_account(self):
+        pass
 
     def essential(self):
         return {

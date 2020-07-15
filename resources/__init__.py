@@ -1,5 +1,5 @@
 from resources.users import UserListResource
-from resources.users import UserResource
+from resources.users import UserResource, CurrentUserResource
 
 from resources.validation import ValidationResource
 from resources.validation import ValidationRetryResource
@@ -17,6 +17,9 @@ from resources.images import ImageListResource
 from resources.info import GenderListResource, InterestsListResource
 
 from resources.discover import DiscoveryListResource
+from resources.api_keys import ApiKeysResource
+
+from resources.location import LocationResource
 
 __all__ = [
     "UserListResource",
@@ -33,5 +36,8 @@ __all__ = [
     "ImageListResource",
     "GenderListResource",
     "InterestsListResource",
-    "DiscoveryListResource"
+    "DiscoveryListResource",
+    "ApiKeysResource",
+    "LocationResource",
+    "CurrentUserResource"
   ]

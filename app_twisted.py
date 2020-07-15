@@ -37,6 +37,7 @@ api = Api(app, prefix="/v1")
 # TODO: Document for pair programming
 api.add_resource(UserListResource, "/users")
 api.add_resource(UserResource, "/user/<int:id>")
+api.add_resource(CurrentUserResource, "/user/current")
 api.add_resource(LoginResource, "/login")
 
 api.add_resource(ValidationResource, '/validate/<string:code>')
@@ -58,6 +59,8 @@ api.add_resource(InterestsListResource, "/info/interests")
 
 api.add_resource(DiscoveryListResource, "/discovery")
 
+api.add_resource(ApiKeysResource, "/api-keys")
+api.add_resource(LocationResource, "/location")
 
 import ast
 from markdown import markdown

@@ -22,33 +22,6 @@ class LoginResource(Resource):
     def post(self):
         """
         GET /v1/login
-
-        Description
-
-        SUCCESS (200)
-
-        ```json
-        "access_token": "eyJ0eXAiOiJKK6I3lO1lk",
-        "user": {
-                        "id": 104,
-                        "fname": "Glen",
-                        "lname": "Wasserfall",
-                        "email": "glen@wasserfallss.co.za",
-                        "username": "aclone",
-                        "email_verified": 1,
-                        "bio": null,
-                        "gender": "Male",
-                        "dob": null,
-                        "longitude": null,
-                        "latitude": null,
-                        "heat": null,
-                        "online": null,
-                        "date_lastseen": null,
-                        "is_admin": null
-}
-        ```
-
-
         """
         args = Arguments(request.json)
         args.string("username", required=True)
