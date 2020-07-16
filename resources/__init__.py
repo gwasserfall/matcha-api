@@ -21,6 +21,8 @@ from resources.api_keys import ApiKeysResource
 
 from resources.location import LocationResource
 
+from resources.block_requests import BlockRequestsListResource, BlockRequestResource
+
 __all__ = [
     "UserListResource",
     "UserResource",
@@ -39,5 +41,7 @@ __all__ = [
     "DiscoveryListResource",
     "ApiKeysResource",
     "LocationResource",
-    "CurrentUserResource"
+    "CurrentUserResource",
+    "BlockRequestsListResource",
+    "BlockRequestResource"
   ]
