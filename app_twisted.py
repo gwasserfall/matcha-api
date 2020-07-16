@@ -62,6 +62,9 @@ api.add_resource(DiscoveryListResource, "/discovery")
 api.add_resource(ApiKeysResource, "/api-keys")
 api.add_resource(LocationResource, "/location")
 
+api.add_resource(BlockRequestsListResource, "/block-requests")
+api.add_resource(BlockRequestResource, "/block-request")
+
 import ast
 from markdown import markdown
 import os
