@@ -69,8 +69,9 @@ class   BlockRequestResource(Resource):
             if block_request:
                 block_request.reviewed = True
                 block_request.blocked = data["blocked"]
-                block_request.admin_comments = data["admin_comments"]
-
+                if data["admin_comments"]:
+                    block_request.admin_comments = data["admin_comments"]
+                    
                 try:
                     block_request.save()
                     msg = "Requested reviewed. User blocked." if block_request.blocked == 1 else "Request reviewed. User NOT blocked."
