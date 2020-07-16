@@ -148,4 +148,6 @@ class CurrentUserResource(Resource):
     def get(self):
         current_user = get_jwt_identity()
 
+        print("Getting current user", current_user)
+
         return get_full_user(current_user["id"]), 200 

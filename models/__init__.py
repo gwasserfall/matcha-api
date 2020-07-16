@@ -351,12 +351,9 @@ class Model(object):
 
         results = []
 
-        if len(kwargs) == 0:
-            query = """SELECT {fields} FROM {table}""".format(
-                fields = ", ".join(temp.fields.keys()),
-                table = cls.table_name)
-        else:
-            query = """
+        with connection.cursor() as c:
+
+            c.execute("""
                 SELECT
                     {fields}
                 FROM
@@ -364,10 +361,7 @@ class Model(object):
                 WHERE   {cond}=%s""".format(
                         fields = ", ".join(temp.fields.keys()),
                         table = cls.table_name,
-                        cond = key), (val,)
-
-        with connection.cursor() as c:
-            c.execute(query)
+                        cond = key), (val,))
 
             data = c.fetchall()
 

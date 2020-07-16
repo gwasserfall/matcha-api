@@ -88,10 +88,10 @@ def deserialise_interests(interests):
     return [{"key" : x.strip().lower(), "value" : x.strip()}  for x in interests.split(",")]
 
 
-def get_full_user(id):
-    user = User.get(id=id)
+def get_full_user(user_id):
+    user = User.get(id=user_id)
 
-    images = Image.get_many(user_id=id)
+    images = Image.get_many(user_id=user_id)
 
     # Get the images for that user
     user.append_field("images", Field(list, images))
