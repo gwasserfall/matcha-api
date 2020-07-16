@@ -57,7 +57,7 @@ class   BlockRequestResource(Resource):
             return {"message" : "You are not authorised to review block requests"}, 401
         else:
             args = Arguments(request.json)
-            args.boolean("blocked", required=True)
+            args.boolean("blocked")
             args.string("admin_comments")
             args.validate()
 
@@ -71,10 +71,10 @@ class   BlockRequestResource(Resource):
                 block_request.blocked = data["blocked"]
                 if data["admin_comments"]:
                     block_request.admin_comments = data["admin_comments"]
-                    
+
                 try:
                     block_request.save()
-                    msg = "Requested reviewed. User blocked." if block_request.blocked == 1 else "Request reviewed. User NOT blocked."
+                    msg = "Request reviewed. User blocked." if block_request.blocked == 1 else "Request reviewed. User NOT blocked."
                     return {"message" : "{}".format(msg)}, 200
                 except Exception as e:
                     return {"message" : str(e)}, 400
