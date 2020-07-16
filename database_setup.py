@@ -47,7 +47,6 @@ with db.cursor() as c:
 
 
     print("Creating table validations")
-    #REF1
     c.execute("""
         CREATE TABLE IF NOT EXISTS validations
         (
@@ -92,6 +91,7 @@ with db.cursor() as c:
             )
     """)
 
+    print("Creating table matches")
     c.execute("""
     CREATE TABLE IF NOT EXISTS matches
     (
@@ -103,6 +103,20 @@ with db.cursor() as c:
     )
     """)
 
+    print("Creating table block_requests")
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS block_requests
+    (
+            id              INTEGER                         AUTO_INCREMENT PRIMARY KEY,
+            reporter_id     INTEGER                         NOT NULL,
+            reported_id     INTEGER                         NOT NULL,
+            reason          LONGTEXT                        NOT NULL,
+            reviewed        BOOLEAN                         DEFAULT(0),
+            blocked         BOOLEAN                         DEFAULT(0),
+            admin_comments  LONGTEXT                        
+    )
+    """)
+    
     # print("Creating table gender_preference")
     # c.execute("""
     #       CREATE TABLE IF NOT EXISTS gender_preference
