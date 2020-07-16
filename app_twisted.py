@@ -63,7 +63,7 @@ api.add_resource(ApiKeysResource, "/api-keys")
 api.add_resource(LocationResource, "/location")
 
 api.add_resource(BlockRequestsListResource, "/block-requests")
-api.add_resource(BlockRequestResource, "/block-request")
+api.add_resource(BlockRequestResource, "/block-request/<int:id>")
 
 import ast
 from markdown import markdown

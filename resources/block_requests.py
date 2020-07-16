@@ -19,29 +19,64 @@ class   BlockRequestsListResource(Resource):
     @jwt_refresh_required
     def get(self):
         current_user = get_jwt_identity()
-        print(current_user)
-
-
         user = User.get(id=current_user["id"])
-        print(user)
-
-
-        return {}, 200
-
-
 
         if not user.is_admin:
             return {"message" : "You do not have admin access."}, 401
         else:
-            print(BlockRequest.get())
-            return {}, 200
+            return BlockRequest.get_all(), 200
 
     @jwt_refresh_required
     def post(self):
-        pass
+        current_user = get_jwt_identity()
+
+        args = Arguments(request.json)
+        args.integer("reported_id")
+        args.string("reason")
+        args.validate()
+
+        block_request = BlockRequest(dict(args))
+        block_request.reporter_id = current_user["id"]
+
+        try:
+            print(block_request.dump_fields())
+            block_request.save()
+            return {"message" : "User reported."}, 200
+        except Exception as e:
+            print(block_request.dump_fields())
+            return {"message" : str(e)}, 400
 
 class   BlockRequestResource(Resource):
 
     @jwt_refresh_required
     def put(self, id):
-        pass
+        current_user = get_jwt_identity()
+        user = User.get(id=current_user["id"])
+
+        if not user.is_admin:
+            return {"message" : "You are not authorised to review block requests"}, 401
+        else:
+            args = Arguments(request.json)
+            args.boolean("blocked", required=True)
+            args.string("admin_comments")
+            args.validate()
+
+            data = dict(args)
+            data["id"] = id
+
+            block_request = BlockRequest.get(id=data.get("id", None))
+
+            if block_request:
+                block_request.reviewed = True
+                block_request.blocked = data["blocked"]
+                block_request.admin_comments = data["admin_comments"]
+
+                try:
+                    block_request.save()
+                    msg = "Requested reviewed. User blocked." if block_request.blocked == 1 else "Request reviewed. User NOT blocked."
+                    return {"message" : "{}".format(msg)}, 200
+                except Exception as e:
+                    return {"message" : str(e)}, 400
+            else:
+                return {"messgae" : "The block request you are trying to update does not exist"}, 400
+
