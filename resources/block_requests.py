@@ -10,7 +10,6 @@ from models.user import User, get_full_user
 from models.validation import Validation
 from models.block_request import BlockRequest
 
-import secrets
 
 from helpers import Arguments
 
@@ -20,7 +19,16 @@ class   BlockRequestsListResource(Resource):
     @jwt_refresh_required
     def get(self):
         current_user = get_jwt_identity()
-        user = User.get(id=id)
+        print(current_user)
+
+
+        user = User.get(id=current_user["id"])
+        print(user)
+
+
+        return {}, 200
+
+
 
         if not user.is_admin:
             return {"message" : "You do not have admin access."}, 401
