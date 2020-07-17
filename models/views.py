@@ -17,6 +17,7 @@ class View(Model):
     def get_viewed_by(self, user_id):
         connection = pool.get_conn()
         with connection.cursor() as c:
+            date_format = '%e %b %Y'
             c.execute("""
                 SELECT
                     v.id, 
@@ -24,12 +25,12 @@ class View(Model):
                     u.fname AS 'viewer_first_name', 
                     u.lname AS 'viewer_last_name',
                     v.viewee_id,
-                    v.date
+                    DATE_FORMAT(v.date, %s) as date
                 FROM views v
                 INNER JOIN users u
                 ON v.viewer_id = u.id
                 WHERE v.viewee_id = %s
-            """, (user_id,))
+            """, (date_format, user_id,))
             pool.release(connection)
             return c.fetchall()
         pool.release(connection)
@@ -39,6 +40,7 @@ class View(Model):
     def get_views(self, user_id):
         connection = pool.get_conn()
         with connection.cursor() as c:
+            date_format = '%e %b %Y'
             c.execute("""
                 SELECT
                     v.id, 
@@ -46,12 +48,12 @@ class View(Model):
                     v.viewee_id, 
                     u.fname AS 'viewee_first_name', 
                     u.lname AS 'viewee_last_name',
-                    v.date
+                    DATE_FORMAT(v.date, %s) as date
                 FROM views v
                 INNER JOIN users u
                 ON v.viewee_id = u.id
                 WHERE v.viewer_id = %s
-            """, (user_id,))
+            """, (date_format, user_id,))
             pool.release(connection)
             return c.fetchall()
         pool.release(connection)
