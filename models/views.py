@@ -2,6 +2,7 @@ from datetime import datetime
 
 from pymysql.err import IntegrityError
 from models import Model, Field
+from database import pool
 
 class View(Model):
 
@@ -14,8 +15,42 @@ class View(Model):
 
     @staticmethod
     def get_viewed_by(self, user_id):
-        pass
+        connection = pool.get_conn()
+        with connection.cursor() as c:
+            c.execute("""
+                SELECT
+                    v.id, 
+                    v.viewer_id,
+                    u.fname AS 'viewer_first_name', 
+                    u.lname AS 'viewer_last_name',
+                    v.viewee_id 
+                FROM views v
+                INNER JOIN users u
+                ON v.viewer_id = u.id
+                WHERE v.viewee_id = %s
+            """, (user_id,))
+            pool.release(connection)
+            return c.fetchall()
+        pool.release(connection)
+        return None
 
     @staticmethod
     def get_views(self, user_id):
-        pass
+        connection = pool.get_conn()
+        with connection.cursor() as c:
+            c.execute("""
+                SELECT
+                    v.id, 
+                    v.viewer_id,
+                    v.viewee_id, 
+                    u.fname AS 'viewee_first_name', 
+                    u.lname AS 'viewee_last_name',
+                FROM views v
+                INNER JOIN users u
+                ON v.viewee_id = u.id
+                WHERE v.viewer_id = %s
+            """, (user_id,))
+            pool.release(connection)
+            return c.fetchall()
+        pool.release(connection)
+        return None

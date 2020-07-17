@@ -12,21 +12,21 @@ class   ViewedByListResource(Resource):
     def get(self):
         current_user = get_jwt_identity()
         
-        return View.get_viewed_by(current_user["id"])
+        return View.get_viewed_by(self, user_id=current_user["id"])
 
 class   ViewsListResource(Resource):
     @jwt_refresh_required
     def get(self):
         current_user = get_jwt_identity()
 
-        return View.get_views(current_user["id"])
+        return View.get_views(self, user_id=current_user["id"])
 
     @jwt_refresh_required
     def post(self):
         current_user = get_jwt_identity()
 
         args = Arguments(request.json)
-        
+
         args.integer("viewee_id")
         args.validate()
 
