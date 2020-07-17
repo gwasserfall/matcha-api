@@ -47,6 +47,8 @@ api.add_resource(VerifyTokenResource, "/verify-token")
 
 api.add_resource(MatchListResource, "/matches")
 api.add_resource(MatchResource, "/match/<int:user_id>")
+api.add_resource(LikesListResource, "/likes")
+api.add_resource(LikedByListResource, "/likes/liked-by")
 
 api.add_resource(RatingResource, "/rating/<int:user_id>")
 

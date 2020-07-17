@@ -96,3 +96,17 @@ class MatchResource(Resource):
         match = Match.check_match(user["id"], user_id)
 
         return match or {"matched" : False, "liked" : False}, 200
+
+class   LikedByListResource(Resource):
+    @jwt_refresh_required
+    def get(self):
+        current_user = get_jwt_identity()
+        
+        return Match.get_liked_by(self, user_id=current_user["id"])
+
+class   LikesListResource(Resource):
+    @jwt_refresh_required
+    def get(self):
+        current_user = get_jwt_identity()
+
+        return Match.get_likes(self, user_id=current_user["id"])

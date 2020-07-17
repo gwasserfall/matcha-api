@@ -6,7 +6,7 @@ from resources.validation import ValidationRetryResource
 from resources.verify_token import VerifyTokenResource
 
 from resources.login import LoginResource
-from resources.matches import MatchListResource, MatchResource
+from resources.matches import MatchListResource, MatchResource, LikedByListResource, LikesListResource
 
 from resources.rating import RatingResource
 
@@ -34,6 +34,8 @@ __all__ = [
     "VerifyTokenResource",
     "MatchListResource",
     "MatchResource",
+    "LikedByListResource", 
+    "LikesListResource",
     "RatingResource",
     "PasswordChangeResource",
     "PasswordResetRequestResource",
