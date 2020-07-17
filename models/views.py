@@ -23,7 +23,8 @@ class View(Model):
                     v.viewer_id,
                     u.fname AS 'viewer_first_name', 
                     u.lname AS 'viewer_last_name',
-                    v.viewee_id 
+                    v.viewee_id,
+                    v.date
                 FROM views v
                 INNER JOIN users u
                 ON v.viewer_id = u.id
@@ -45,6 +46,7 @@ class View(Model):
                     v.viewee_id, 
                     u.fname AS 'viewee_first_name', 
                     u.lname AS 'viewee_last_name',
+                    v.date
                 FROM views v
                 INNER JOIN users u
                 ON v.viewee_id = u.id
