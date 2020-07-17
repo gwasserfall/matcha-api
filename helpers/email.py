@@ -22,7 +22,7 @@ def send_validation_email(user, code):
     html = """
     <div>
       <h3>Hello {name}, welcome to Matcha</h3>
-      <p>Pwease vawidate your emaiw by clicking the wink bewow</p>
+      <p>Please validate your email by clicking the link below</p>
       <a href="{base}/validate?code={code}">Verify Email</a>
     </div>
     """.format(name=name, base=base, code=code)
