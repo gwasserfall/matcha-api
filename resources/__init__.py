@@ -6,7 +6,7 @@ from resources.validation import ValidationRetryResource
 from resources.verify_token import VerifyTokenResource
 
 from resources.login import LoginResource
-from resources.matches import MatchListResource, MatchResource
+from resources.matches import MatchListResource, MatchResource, LikedByListResource, LikesListResource
 
 from resources.rating import RatingResource
 
@@ -23,6 +23,8 @@ from resources.location import LocationResource
 
 from resources.block_requests import BlockRequestsListResource, BlockRequestResource
 
+from resources.views import ViewsListResource, ViewedByListResource
+
 __all__ = [
     "UserListResource",
     "UserResource",
@@ -32,6 +34,8 @@ __all__ = [
     "VerifyTokenResource",
     "MatchListResource",
     "MatchResource",
+    "LikedByListResource", 
+    "LikesListResource",
     "RatingResource",
     "PasswordChangeResource",
     "PasswordResetRequestResource",
@@ -43,5 +47,7 @@ __all__ = [
     "LocationResource",
     "CurrentUserResource",
     "BlockRequestsListResource",
-    "BlockRequestResource"
+    "BlockRequestResource",
+    "ViewsListResource", 
+    "ViewedByListResource"
   ]

@@ -131,16 +131,16 @@ class UserResource(Resource):
         mail = args.user.get("email", None)
 
         if mail and mail != user.email:
-            
-            return {"WHAT" : "ARE YOU DOING?"}, 200
+
+            user.email = mail
             user.email_verified = False
+
             try:
                 validation = Validation(user_id=user.id, code=secrets.token_urlsafe(256))
                 validation.save()
                 send_validation_email(user, validation.code)
             except Exception as e:
                 return {"message" : str(e)}, 500
-
 
         user.update(args.user)
 
