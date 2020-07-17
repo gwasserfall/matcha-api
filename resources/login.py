@@ -28,8 +28,6 @@ class LoginResource(Resource):
         args.string("password", required=True)
         args.validate()
 
-        log.msg("User " + args.username + " trying to sign in")
-
         if is_email(args.username):
             user = User.get(email=args.username)
         else:

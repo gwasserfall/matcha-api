@@ -75,8 +75,12 @@ class UserResource(Resource):
     def get(self, id):
         
         current_user = get_jwt_identity()
-        user = User.get(id=id)
-        
+
+        try:
+            int(id)
+            user = User.get(id=id)
+        except ValueError:
+            user = User.get(username=id)
 
         if not user:
             return {"message" : "User does not exist"}, 404
@@ -94,12 +98,19 @@ class UserResource(Resource):
         args.validate()
 
         current_user = get_jwt_identity()
+
+        try: 
+            id = int(id)
+        except ValueError:
+            return {"message" : "Profiles can only be updated using the ID"}, 400
+
+
+
         user = User.get(id=id)
 
         if not user or current_user["id"] != id:
             return {"message" : "You are not authorized to edit this profile"}, 401
 
-        # Remove unuseable fields
         if "id" in args.user:
             del args.user["id"]
         if "images" in args.user:
@@ -115,8 +126,6 @@ class UserResource(Resource):
             args.user["preferences"] = args.user["preferences"] if args.user["preferences"] else ""
         except Exception:
             pass
-
-        print(dict(args))
 
 
         mail = args.user.get("email", None)

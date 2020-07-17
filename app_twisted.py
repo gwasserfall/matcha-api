@@ -15,7 +15,7 @@ from flask_jwt_extended import JWTManager, decode_token
 
 import config
 # from models import connection
-from helpers import ModelEncoder
+from helpers.model_encoder import ModelEncoder
 from helpers import jwt_refresh_required
 from sockets import get_server_factory, get_server_protocol
 
@@ -36,7 +36,9 @@ api = Api(app, prefix="/v1")
 
 # TODO: Document for pair programming
 api.add_resource(UserListResource, "/users")
-api.add_resource(UserResource, "/user/<int:id>")
+api.add_resource(UserResource, "/user/<string:id>")
+
+
 api.add_resource(CurrentUserResource, "/user/current")
 api.add_resource(LoginResource, "/login")
 
@@ -57,7 +59,7 @@ api.add_resource(ImageListResource, "/images")
 api.add_resource(GenderListResource, "/info/genders")
 api.add_resource(InterestsListResource, "/info/interests")
 
-api.add_resource(DiscoveryListResource, "/discovery")
+api.add_resource(DiscoveryListResource, "/discover")
 
 api.add_resource(ApiKeysResource, "/api-keys")
 api.add_resource(LocationResource, "/location")

@@ -1,8 +1,6 @@
 from collections.abc import MutableMapping
 from datetime import datetime, date
-# from time import sleep
 
-# import pymysql
 import config
 from datetime import datetime
 from copy import deepcopy

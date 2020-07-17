@@ -2,6 +2,7 @@ from flask import request as req
 from flask_restful import abort
 from json import JSONEncoder
 from datetime import datetime
+from helpers.password_policy import verify
 import re
 
 class Arg(object):
@@ -16,6 +17,7 @@ class Arg(object):
         self.regex = kwargs.get("regex", None)
         self.email = kwargs.get("email", False)
         self.boolean = kwargs.get("boolean", False)
+        self.func = kwargs.get("func", None)
 
     def __repr__(self):
         return "<Argument: '{}'>".format(self.name)
@@ -58,6 +60,12 @@ class Arguments(object):
     def validate(self):
         for arg in self.arguments:
             value = self.request.get(arg.name, None)
+
+            if arg.type is str and arg.name is "password":
+                pass
+                # if not verify(value):
+                #     abort(400, message=arg.message or "Password failed minimum complexity requirements.")
+                #     return False
 
             # Check regex only on string
             if arg.type in [str, datetime] and arg.regex and not re.match(arg.regex, str(value)):

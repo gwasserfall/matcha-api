@@ -7,6 +7,8 @@ from pymysql.err import IntegrityError
 from models import Model, Field
 from models.images import Image
 
+from database import pool
+
 class User(Model):
 
     table_name = "users"
@@ -67,19 +69,23 @@ class User(Model):
         else:
             raise Exception("User not in database")
 
-    def unverify_account(self):
-        pass
+    @staticmethod
+    def get_mini_users(matches):
+        try:
+            connection = pool.get_conn()
 
-    def essential(self):
-        return {
-            "id" : self.id,
-            "fname" : self.fname,
-            "lname" : self.lname
-        }
+            query = ""
 
-    @classmethod
-    def get_matches(cls, user_id):
-        pass
+
+
+
+
+        except Exception as e:
+            print("Exception in get_mini_users() method")
+            print(e)
+        finally:
+            pool.release(connection)
+            
 
 def serialise_interests(interests):
     return ",".join(interests)
