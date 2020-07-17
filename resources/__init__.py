@@ -23,6 +23,8 @@ from resources.location import LocationResource
 
 from resources.block_requests import BlockRequestsListResource, BlockRequestResource
 
+from resources.views import ViewsListResource, ViewedByListResource
+
 __all__ = [
     "UserListResource",
     "UserResource",
@@ -43,5 +45,7 @@ __all__ = [
     "LocationResource",
     "CurrentUserResource",
     "BlockRequestsListResource",
-    "BlockRequestResource"
+    "BlockRequestResource",
+    "ViewsListResource", 
+    "ViewedByListResource"
   ]

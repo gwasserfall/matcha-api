@@ -65,6 +65,9 @@ api.add_resource(LocationResource, "/location")
 api.add_resource(BlockRequestsListResource, "/block-requests")
 api.add_resource(BlockRequestResource, "/block-request/<int:id>")
 
+api.add_resource(ViewsListResource, "/views")
+api.add_resource(ViewedByListResource, "/views/viewed-by")
+
 import ast
 from markdown import markdown
 import os

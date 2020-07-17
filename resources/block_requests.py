@@ -39,11 +39,9 @@ class   BlockRequestsListResource(Resource):
         block_request.reporter_id = current_user["id"]
 
         try:
-            print(block_request.dump_fields())
             block_request.save()
             return {"message" : "User reported."}, 200
         except Exception as e:
-            print(block_request.dump_fields())
             return {"message" : str(e)}, 400
 
 class   BlockRequestResource(Resource):

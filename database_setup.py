@@ -116,6 +116,17 @@ with db.cursor() as c:
             admin_comments  LONGTEXT                        
     )
     """)
+
+    print("Creating table views")
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS views
+    (
+            id              INTEGER                         AUTO_INCREMENT PRIMARY KEY,
+            date            DATETIME                        DEFAULT CURRENT_TIMESTAMP,
+            viewer_id       INTEGER                         NOT NULL,
+            viewee_id       INTEGER                         NOT NULL
+    )
+    """)
     
     # print("Creating table gender_preference")
     # c.execute("""
