@@ -47,6 +47,8 @@ api.add_resource(VerifyTokenResource, "/verify-token")
 
 api.add_resource(MatchListResource, "/matches")
 api.add_resource(MatchResource, "/match/<int:user_id>")
+api.add_resource(LikesListResource, "/likes")
+api.add_resource(LikedByListResource, "/likes/liked-by")
 
 api.add_resource(RatingResource, "/rating/<int:user_id>")
 
@@ -64,6 +66,9 @@ api.add_resource(LocationResource, "/location")
 
 api.add_resource(BlockRequestsListResource, "/block-requests")
 api.add_resource(BlockRequestResource, "/block-request/<int:id>")
+
+api.add_resource(ViewsListResource, "/views")
+api.add_resource(ViewedByListResource, "/views/viewed-by")
 
 import ast
 from markdown import markdown
