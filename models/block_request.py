@@ -44,17 +44,17 @@ class   BlockRequest(Model):
         return None
 
     @classmethod
-    def check_blocked(cls, reporter_id, reported_id):
+    def check_blocked(cls, reporter_id, reported_username):
         temp = cls()
 
         connection = temp.pool.get_conn()
         with connection.cursor() as c:
             c.execute("""
-              SELECT
-                EXISTS(SELECT * FROM block_requests WHERE reporter_id=%s and reported_id=%s and blocked=1) as blocked_them,
-                EXISTS(SELECT * FROM block_requests WHERE reporter_id=%s and reported_id=%s and blocked=1) as blocked_me
-              from block_requests
-            """, [reporter_id, reported_id, reported_id, reporter_id])
+            SELECT
+                EXISTS(SELECT * FROM block_requests WHERE reporter_id=%s AND reported_id=(SELECT id FROM users WHERE username=%s) AND blocked=1) as blocked_them,
+                EXISTS(SELECT * FROM block_requests WHERE reporter_id=(SELECT id FROM users WHERE username=%s) AND reported_id=%s AND blocked=1) as blocked_me              
+            from block_requests
+            """, (reporter_id, reported_username, reported_username, reporter_id))
             temp.pool.release(connection)
             return c.fetchone()
         temp.pool.release(connection)

@@ -17,9 +17,11 @@ import traceback
 
 class   BlocksResource(Resource):
     @jwt_refresh_required
-    def get(self, user_id):
+    def get(self, username):
         current_user = get_jwt_identity()
-        blocked = BlockRequest.check_blocked(current_user["id"], user_id)
+        blocked = BlockRequest.check_blocked(current_user["id"], username)
+
+        print(blocked)
 
         return blocked or {"blocked_them" : False, "blocked_them" : False}, 200
 
