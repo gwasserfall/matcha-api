@@ -72,6 +72,8 @@ api.add_resource(BlockRequestResource, "/block-request/<int:id>")
 api.add_resource(ViewsListResource, "/views")
 api.add_resource(ViewedByListResource, "/views/viewed-by")
 
+api.add_resource(UnmatchResource, "/unmatch/<int:user_id>")
+
 import ast
 from markdown import markdown
 import os
