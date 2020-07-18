@@ -21,7 +21,7 @@ from resources.api_keys import ApiKeysResource
 
 from resources.location import LocationResource
 
-from resources.block_requests import BlockRequestsListResource, BlockRequestResource
+from resources.block_requests import BlockRequestsListResource, BlockRequestResource, BlocksResource
 
 from resources.views import ViewsListResource, ViewedByListResource
 
@@ -50,5 +50,6 @@ __all__ = [
     "BlockRequestResource",
     "ViewsListResource", 
     "ViewedByListResource",
-    "UnmatchResource"
+    "UnmatchResource",
+    "BlocksResource"
   ]

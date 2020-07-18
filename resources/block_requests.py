@@ -15,6 +15,14 @@ from helpers import Arguments
 
 import traceback
 
+class   BlocksResource(Resource):
+    @jwt_refresh_required
+    def get(self, user_id):
+        current_user = get_jwt_identity()
+        blocked = BlockRequest.check_blocked(current_user["id"], user_id)
+
+        return blocked or {"blocked_them" : False, "blocked_them" : False}, 200
+
 class   BlockRequestsListResource(Resource):
     @jwt_refresh_required
     def get(self):
