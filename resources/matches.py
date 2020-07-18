@@ -32,13 +32,13 @@ class MatchListResource(Resource):
         user = get_jwt_identity()
 
         if Match.get(matchee_id=args.matchee_id, matcher_id=user["id"]):
-            return {"message" : "Already matched"}, 200
+            return {"message" : "Already liked."}, 200
         try:
             match = Match(matchee_id=args.matchee_id, matcher_id=user["id"])
             match.save()
         except Exception as e:
             return {"message" : str(e)}, 500
-        return {"message" : "Matched"}, 200
+        return {"message" : "User liked."}, 200
 
 
     @jwt_refresh_required
