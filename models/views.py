@@ -24,6 +24,7 @@ class View(Model):
                     v.viewer_id,
                     u.fname AS 'viewer_first_name', 
                     u.lname AS 'viewer_last_name',
+                    u.username AS 'viewer_username',
                     v.viewee_id,
                     DATE_FORMAT(v.date, %s) as date
                 FROM views v
@@ -48,6 +49,7 @@ class View(Model):
                     v.viewee_id, 
                     u.fname AS 'viewee_first_name', 
                     u.lname AS 'viewee_last_name',
+                    u.username AS 'viewee_username',
                     DATE_FORMAT(v.date, %s) as date
                 FROM views v
                 INNER JOIN users u

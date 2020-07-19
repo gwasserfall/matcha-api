@@ -9,11 +9,22 @@ from helpers.email import send_validation_email
 from models.user import User, get_full_user
 from models.validation import Validation
 from models.block_request import BlockRequest
+from models.matches import Match
 
 
 from helpers import Arguments
 
 import traceback
+
+class   BlocksResource(Resource):
+    @jwt_refresh_required
+    def get(self, username):
+        current_user = get_jwt_identity()
+        blocked = BlockRequest.check_blocked(current_user["id"], username)
+
+        print(blocked)
+
+        return blocked or {"blocked_them" : False, "blocked_them" : False}, 200
 
 class   BlockRequestsListResource(Resource):
     @jwt_refresh_required
@@ -65,10 +76,29 @@ class   BlockRequestResource(Resource):
             block_request = BlockRequest.get(id=data.get("id", None))
 
             if block_request:
+
+                if block_request.blocked:
+                    match = Match.check_match(block_request.reporter_id, block_request.reported_id)
+                    
+                    if match["liked"] or match["matched"]:
+                        my_like = Match.get(matcher_id=block_request.reporter_id, matchee_id=block_request.reported_id)
+                        their_like = Match.get(matcher_id=block_request.reported_id, matchee_id=block_request.reporter_id)
+                        
+                        if match["liked"] and match["matched"]:
+                            try:
+                                my_like.delete()
+                                their_like.delete()
+                            except Exception as e:
+                                return {"message" : str(e)}, 500
+                        elif match["liked"] and not match["matched"]:
+                            try:
+                                my_like.delete()
+                            except Exception as e:
+                                return {"message" : str(e)}, 500
+
                 block_request.reviewed = True
                 block_request.blocked = data["blocked"]
-                if data["admin_comments"]:
-                    block_request.admin_comments = data["admin_comments"]
+                block_request.admin_comments = data["admin_comments"]
 
                 try:
                     block_request.save()

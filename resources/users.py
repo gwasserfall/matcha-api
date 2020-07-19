@@ -85,11 +85,8 @@ class UserResource(Resource):
         if not user:
             return {"message" : "User does not exist"}, 404
 
-        if user.id == current_user["id"]:
-            
-            return get_full_user(user.id), 200
-        else:
-            return user, 200
+        ## TODO gdubs look at this and fix it so that email is only returned for the loggedin user and not other users because security
+        return get_full_user(user.id), 200
 
     @jwt_refresh_required
     def put(self, id):

@@ -26,6 +26,7 @@ class Match(Model):
                     m.matchee_id, 
                     u.fname AS 'matchee_first_name', 
                     u.lname AS 'matchee_last_name',
+                    u.username AS 'matchee_username',
                     DATE_FORMAT(m.date, %s) as date
                 FROM matches m
                 INNER JOIN users u
@@ -48,6 +49,7 @@ class Match(Model):
                     m.matcher_id,
                     u.fname AS 'matcher_first_name', 
                     u.lname AS 'matcher_last_name',
+                    u.username AS 'matcher_username',
                     m.matchee_id,
                     DATE_FORMAT(m.date, %s) as date
                 FROM matches m
