@@ -13,6 +13,7 @@ from flask_jwt_extended import (
 
 from models.matches import Match
 from models.user import User
+from models.images import Image
 
 from twisted.python import log
 
@@ -29,6 +30,11 @@ class MatchListResource(Resource):
         args.validate()
 
         user = get_jwt_identity()
+
+        images = Image.check_images(user_id=user["id"])
+
+        if not images["has_images"]:
+            return {"message" : "You cannot like a user if you have no profile images."}, 401
 
         if Match.get(matchee_id=args.matchee_id, matcher_id=user["id"]):
             return {"message" : "Already matched"}, 200

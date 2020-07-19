@@ -20,3 +20,19 @@ class Image(Model):
                 self.pool.release(connection)
                 raise Exception("Cannot upload image, you already have 5. Please delete an image and reupload.")
         self.pool.release(connection)
+
+    @classmethod
+    def check_images(cls, user_id):
+        temp = cls()
+
+        connection = temp.pool.get_conn()
+        with connection.cursor() as c:
+            c.execute("""
+              SELECT
+                EXISTS(SELECT * FROM images WHERE user_id=%s AND image64!=%s AND image64!=null AND image64!=0) AS has_images
+              from matches
+            """, (user_id, "&nbsp"))
+            temp.pool.release(connection)
+            return c.fetchone()
+        temp.pool.release(connection)
+        return None
