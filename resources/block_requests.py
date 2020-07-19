@@ -77,8 +77,7 @@ class   BlockRequestResource(Resource):
             if block_request:
                 block_request.reviewed = True
                 block_request.blocked = data["blocked"]
-                if data["admin_comments"]:
-                    block_request.admin_comments = data["admin_comments"]
+                block_request.admin_comments = data["admin_comments"]
 
                 try:
                     block_request.save()
