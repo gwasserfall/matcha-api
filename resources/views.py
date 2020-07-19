@@ -3,6 +3,7 @@ from flask_restful import Resource
 from flask_jwt_extended import get_jwt_identity
 
 from models.views import View
+from models.user import User
 from helpers import Arguments, jwt_refresh_required
 
 import traceback
@@ -27,13 +28,16 @@ class   ViewsListResource(Resource):
 
         args = Arguments(request.json)
 
-        args.integer("viewee_id")
+        args.string("viewee_username")
         args.validate()
 
-        view = View(dict(args))
-        view.viewer_id = current_user["id"]
+        user = dict(args)
 
-        if View.get(viewer_id=current_user["id"], viewee_id=args.viewee_id):
+        viewee = User.get(username=user["viewee_username"])
+
+        view = View({"viewee_id" : viewee.id, "viewer_id" : current_user["id"]})
+
+        if View.get(viewer_id=current_user["id"], viewee_id=viewee.id):
             return {"message" : "Already viewed."}, 200
         try:
             view.save()
