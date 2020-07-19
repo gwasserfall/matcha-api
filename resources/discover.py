@@ -35,8 +35,8 @@ class MatchList(object):
     def filter_tags(self):
         for match in self.matches:
             
-            print("user interests", type(self.user.interests), self.user.interests)
-            print("user interests", type(match["interests"]), match["interests"])
+            # print("user interests", type(self.user.interests), self.user.interests)
+            # print("user interests", type(match["interests"]), match["interests"])
 
             if not self.user.interests or not match["interests"]:
                 match["tags"] = 0
@@ -45,7 +45,6 @@ class MatchList(object):
             
             if match["tags"] < self.tags_min:
                 self.matches.remove(match)
-
 
 
     def deserialise(self):
@@ -61,12 +60,12 @@ class MatchList(object):
 
         self.deserialise()
 
-        for func in MatchList.__dict__.values():
-            try:
-                if "filter_" in func.__name__: 
-                    getattr(self, func.__name__)()
-            except AttributeError as e:
-                pass
+        # for func in MatchList.__dict__.values():
+        #     try:
+        #         if "filter_" in func.__name__: 
+        #             getattr(self, func.__name__)()
+        #     except AttributeError as e:
+        #         pass
 
         return self.matches
 
@@ -96,6 +95,8 @@ class DiscoveryListResource(Resource):
 
         connection = pool.get_conn()
 
+        user.dump_fields()
+
         query = """
             SELECT
             users.id as id,
@@ -120,14 +121,20 @@ class DiscoveryListResource(Resource):
                 * sin( radians( latitude ) )
                 )
             ) AS distance
-            FROM users
-            LEFT JOIN images on images.id = (SELECT id FROM images where user_id=users.id ORDER BY is_primary DESC LIMIT 1)
+            FROM 
+                users
+            LEFT JOIN 
+                images on images.id = (SELECT id FROM images where user_id=users.id ORDER BY is_primary DESC LIMIT 1)
+            WHERE 
+                users.id NOT IN (SELECT matchee_id FROM matches WHERE matcher_id=%s AND matchee_id=users.id)
+                AND
+                    %s NOT IN (SELECT reported_id FROM block_requests WHERE reporter_id=users.id AND blocked=1)
             HAVING distance <= %s
             ORDER BY distance ASC
             LIMIT %s, %s"""
 
         with connection.cursor() as c:
-            c.execute(query, (user.latitude, user.longitude, user.latitude, distance, skip, take))
+            c.execute(query, (user.latitude, user.longitude, user.latitude, user.id, user.id, distance, skip, take))
             pool.release(connection)
 
             return matches.filter(c.fetchall()), 200

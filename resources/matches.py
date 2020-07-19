@@ -1,20 +1,13 @@
 from flask import request
 
-from flask import current_app as app
-
 from flask_restful import Resource
-from flask_jwt_extended import (
-    JWTManager,
-    jwt_required,
-    create_access_token,
-    create_refresh_token,
-    get_jwt_identity
-)
 
 from models.matches import Match
 from models.user import User
 
 from twisted.python import log
+
+from flask_jwt_extended import get_jwt_identity
 
 from helpers import Arguments, is_email, jwt_refresh_required
 
@@ -45,48 +38,32 @@ class MatchListResource(Resource):
     def get(self):
         """
         GET : /v1/matches (requires JWT)
-
-        Get matches user profiles for the currently logged in user
-
-
-        SUCCESS (200)
-
-        ```json
-            [
-                {
-                    "id": 1,
-                }
-            ]
-        ```
-
-        UNAUTHORISED (401)
-
-        ```json
-
-            {"message" : "Not authorised"}
-
-        ```
-
         """
+
+        current_user = get_jwt_identity()
+
         temp = Match()
         connection = temp.pool.get_conn()
         matches = []
         with connection.cursor() as c:
             c.execute("""
-            select * from users where id in (
-                select matchee_id
-                from matches
-                    WHERE matcher_id in (
-                        select matchee_id from matches where matchee_id = 102
-                    ) and matchee_id in (
-                        select matcher_id from matches where matcher_id != 102
-                    )
-                )
-            """)
+            SELECT * FROM users WHERE id IN (
+                SELECT 
+                    rhs.matcher_id 
+                FROM 
+                    matches lhs 
+                LEFT JOIN 
+                    matches rhs ON lhs.matcher_id = %s
+                WHERE rhs.matchee_id = %s AND lhs.matchee_id = rhs.matcher_id
+            )
+            """, (current_user["id"], current_user["id"]))
             for m in c.fetchall():
                 user = User.get(id=m["id"])
+                user.get_primary_image()
                 matches.append(user)
-        return matches
+
+        temp.pool.release(connection)
+        return matches, 200
 
 
 class MatchResource(Resource):

@@ -45,6 +45,23 @@ class User(Model):
         _hash, salt = self.passhash.split(':')
         return _hash == hashlib.sha256(salt.encode() + password.encode()).hexdigest()
 
+    def get_primary_image(self):
+        if self.id:
+            try:
+                connection = pool.get_conn()
+                with connection.cursor() as c:
+                    c.execute("""SELECT image64, image_type FROM images WHERE user_id=%s ORDER BY id DESC LIMIT 1""", (self.id,))
+                    result = c.fetchone()
+                    image64 = None if not result else result["image64"]
+                    image_type = None if not result else result["image_type"]
+                    self.append_field("image64", Field(str, image64))
+                    self.append_field("image_type", Field(str, image_type))
+            except Exception as e:
+                raise
+            finally:
+                pool.release(connection)
+
+
     def delete(self):
 
         if self.id:

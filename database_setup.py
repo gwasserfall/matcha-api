@@ -60,12 +60,12 @@ with db.cursor() as c:
     c.execute("""
             CREATE TABLE IF NOT EXISTS messages
             (
-                    id                      INT                             AUTO_INCREMENT PRIMARY KEY,
-                    to_id           INT,
-                    from_id         INT,
-                    timestamp       DATETIME                        DEFAULT CURRENT_TIMESTAMP,
-                    message         TEXT,
-                    seen            INT                             DEFAULT(0)
+                id              INT         AUTO_INCREMENT PRIMARY KEY,
+                to_id           INT,
+                from_id         INT,
+                timestamp       DATETIME    DEFAULT CURRENT_TIMESTAMP,
+                message         TEXT,
+                seen            INT         DEFAULT(0)
             )
     """)
 

@@ -78,6 +78,17 @@ import os
 
 import simplejson as json
 
+
+@app.before_request
+def before_request_func():
+    print("Before Request : DB Connections =", pool.get_pool_size())
+
+@app.after_request
+def after_request_func(response):
+    print("After Request : DB Connections =", pool.get_pool_size())
+    return response
+
+
 @app.route("/test")
 def test():
     user = User.get(id=1)
