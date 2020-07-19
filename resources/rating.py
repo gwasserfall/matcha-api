@@ -15,6 +15,16 @@ from helpers import Arguments, jwt_refresh_required
 
 class RatingResource(Resource):
     @jwt_refresh_required
+    def get(self, user_id):
+        user = get_jwt_identity()
+
+        match = Match.get(matcher_id=user["id"], matchee_id=user_id)
+        if match:
+            return match, 200
+        else:
+            return {"message": "No relationship found with this user."}, 404
+
+    @jwt_refresh_required
     def put(self, user_id):
         user = get_jwt_identity()
         args = Arguments(request.json)
