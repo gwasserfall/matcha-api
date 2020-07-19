@@ -35,7 +35,7 @@ class MatchListResource(Resource):
         images = Image.check_images(user_id=user["id"])
 
         if not images["has_images"]:
-            return {"message" : "You cannot like a user if you have no profile images."}, 401
+            return {"message" : "You cannot like a user if you have no profile images.", "no_photo" : True}, 401
 
         if Match.get(matchee_id=args.matchee_id, matcher_id=user["id"]):
             return {"message" : "Already liked."}, 200

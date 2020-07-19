@@ -29,8 +29,8 @@ class Image(Model):
         with connection.cursor() as c:
             c.execute("""
               SELECT
-                EXISTS(SELECT * FROM images WHERE user_id=%s AND image64!=%s AND image64!=null AND image64!=0) AS has_images
-              from matches
+                EXISTS(SELECT * FROM images WHERE user_id=%s AND image64!=%s) AS has_images
+              from images
             """, (user_id, "&nbsp"))
             temp.pool.release(connection)
             return c.fetchone()
