@@ -15,6 +15,16 @@ from helpers import Arguments
 
 import traceback
 
+class   BlocksResource(Resource):
+    @jwt_refresh_required
+    def get(self, username):
+        current_user = get_jwt_identity()
+        blocked = BlockRequest.check_blocked(current_user["id"], username)
+
+        print(blocked)
+
+        return blocked or {"blocked_them" : False, "blocked_them" : False}, 200
+
 class   BlockRequestsListResource(Resource):
     @jwt_refresh_required
     def get(self):
@@ -67,8 +77,7 @@ class   BlockRequestResource(Resource):
             if block_request:
                 block_request.reviewed = True
                 block_request.blocked = data["blocked"]
-                if data["admin_comments"]:
-                    block_request.admin_comments = data["admin_comments"]
+                block_request.admin_comments = data["admin_comments"]
 
                 try:
                     block_request.save()
