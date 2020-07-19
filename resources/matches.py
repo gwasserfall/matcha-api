@@ -13,6 +13,7 @@ from flask_jwt_extended import (
 
 from models.matches import Match
 from models.user import User
+from models.block_request import BlockRequest
 
 from twisted.python import log
 
@@ -31,14 +32,13 @@ class MatchListResource(Resource):
         user = get_jwt_identity()
 
         if Match.get(matchee_id=args.matchee_id, matcher_id=user["id"]):
-            return {"message" : "Already matched"}, 200
+            return {"message" : "Already liked."}, 200
         try:
             match = Match(matchee_id=args.matchee_id, matcher_id=user["id"])
             match.save()
         except Exception as e:
             return {"message" : str(e)}, 500
-        return {"message" : "Matched"}, 200
-
+        return {"message" : "User liked."}, 200
 
 
     @jwt_refresh_required
@@ -110,3 +110,38 @@ class   LikesListResource(Resource):
         current_user = get_jwt_identity()
 
         return Match.get_likes(self, user_id=current_user["id"])
+
+class   UnmatchResource(Resource):
+    @jwt_refresh_required
+    def delete(self, user_id):
+        current_user = get_jwt_identity()
+        match = Match.check_match(current_user["id"], user_id)
+
+        if match["liked"] or match["matched"]:
+            my_like = Match.get(matcher_id=current_user["id"], matchee_id=user_id)
+            their_like = Match.get(matcher_id=user_id, matchee_id=current_user["id"])
+            
+            if match["liked"] and match["matched"]:
+                try:
+                    my_like.delete()
+                    their_like.delete()
+                except Exception as e:
+                    return {"message" : str(e)}, 500
+            elif match["liked"] and not match["matched"]:
+                try:
+                    my_like.delete()
+                except Exception as e:
+                    return {"message" : str(e)}, 500
+
+            try:
+                my_block = {"reporter_id" : current_user["id"], "reported_id" : user_id, "reason" : "unmatch", "reviewed" : 1, "blocked" : 1, "admin_comments": "unmatch"}
+                their_block = {"reporter_id" : user_id, "reported_id" : current_user["id"], "reason" : "unmatch", "reviewed" : 1, "blocked" : 1, "admin_comments": "unmatch"}
+                block_them = BlockRequest(my_block)
+                block_me = BlockRequest(their_block)
+                block_me.save()
+                block_them.save()
+                return {"message" : "Successfully removed user relationship."}, 200
+            except Exception as e:
+                return {"message" : str(e)}, 500        
+        else:
+            return {"message" : "Unable to unlike/unmatch. No relationship exists with this user."}, 200
