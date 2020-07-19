@@ -9,6 +9,7 @@ from helpers.email import send_validation_email
 from models.user import User, get_full_user
 from models.validation import Validation
 from models.block_request import BlockRequest
+from models.matches import Match
 
 
 from helpers import Arguments
@@ -75,6 +76,24 @@ class   BlockRequestResource(Resource):
             block_request = BlockRequest.get(id=data.get("id", None))
 
             if block_request:
+                match = Match.check_match(block_request.reporter_id, block_request.reported_id)
+
+                if match["liked"] or match["matched"]:
+                    my_like = Match.get(matcher_id=block_request.reporter_id, matchee_id=block_request.reported_id)
+                    their_like = Match.get(matcher_id=block_request.reported_id, matchee_id=block_request.reporter_id)
+                    
+                    if match["liked"] and match["matched"]:
+                        try:
+                            my_like.delete()
+                            their_like.delete()
+                        except Exception as e:
+                            return {"message" : str(e)}, 500
+                    elif match["liked"] and not match["matched"]:
+                        try:
+                            my_like.delete()
+                        except Exception as e:
+                            return {"message" : str(e)}, 500
+
                 block_request.reviewed = True
                 block_request.blocked = data["blocked"]
                 block_request.admin_comments = data["admin_comments"]
