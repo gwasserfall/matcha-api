@@ -93,10 +93,6 @@ class User(Model):
 
             query = ""
 
-
-
-
-
         except Exception as e:
             print("Exception in get_mini_users() method")
             print(e)

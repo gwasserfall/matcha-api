@@ -16,7 +16,7 @@ class MatchList(object):
         self.fame_max = kwargs.get("fame_max", (user.heat or 3) + 1)
         self.age_min = kwargs.get("age_min", 18)
         self.age_max = kwargs.get("age_max", 99)
-        self.tags_min = kwargs.get("tags_min", 1)
+        self.tags_min = kwargs.get("tags_min", 0)
         self.user = user
         self.matches = []
 
@@ -89,10 +89,6 @@ class DiscoveryListResource(Resource):
             skip = 0
             take = 20
 
-
-        print("take is of type", type(take), take)
-        print("skip is of type", type(skip), skip)
-
         connection = pool.get_conn()
 
         user.dump_fields()
@@ -102,12 +98,13 @@ class DiscoveryListResource(Resource):
             users.id as id,
             fname,
             lname,
+            username,
             bio,
             gender,
             dob,
             latitude,
             longitude,
-            heat,
+            (select IF(COUNT(id) = 0, 3, SUM(rating)) / IF(COUNT(id) = 0, 1, COUNT(id)) as fame from matches where matchee_id = users.id and rating > 0) as heat,
             preferences,
             interests,
             image64,
@@ -124,17 +121,18 @@ class DiscoveryListResource(Resource):
             FROM 
                 users
             LEFT JOIN 
-                images on images.id = (SELECT id FROM images where user_id=users.id ORDER BY is_primary DESC LIMIT 1)
+                images on images.id = (SELECT id FROM images where user_id=users.id AND images.image64 <> '&nbsp' ORDER BY is_primary DESC LIMIT 1)
             WHERE 
                 users.id NOT IN (SELECT matchee_id FROM matches WHERE matcher_id=%s AND matchee_id=users.id)
                 AND
                     %s NOT IN (SELECT reported_id FROM block_requests WHERE reporter_id=users.id AND blocked=1)
+                AND users.id <> %s
             HAVING distance <= %s
             ORDER BY distance ASC
             LIMIT %s, %s"""
 
         with connection.cursor() as c:
-            c.execute(query, (user.latitude, user.longitude, user.latitude, user.id, user.id, distance, skip, take))
+            c.execute(query, (user.latitude, user.longitude, user.latitude, user.id, user.id, user.id, distance, skip, take))
             pool.release(connection)
 
             return matches.filter(c.fetchall()), 200

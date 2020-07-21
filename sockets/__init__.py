@@ -8,6 +8,7 @@ from flask_jwt_extended import decode_token
 from autobahn.twisted.websocket import WebSocketServerFactory, WebSocketServerProtocol
 from autobahn.exception import Disconnected
 
+
 def get_server_protocol(app):
 
     class MatchaServerProtocol(WebSocketServerProtocol):
@@ -44,7 +45,7 @@ def get_server_protocol(app):
                 # self.factory.sendPollOnlineRequest()
                 pass
             elif method == "message":
-                self.factory.sendMessage(req)
+                self.factory.routeUserMessage(req)
             elif method == "pollOnline":
                 self.factory.pollOnline(self)
             elif method == "initChat":
@@ -87,7 +88,7 @@ def get_server_factory(app):
         def list_clients(self):
             print("Clients")
             pprint(self.online)
-            reactor.callLater(20, self.list_clients)
+            reactor.callLater(5, self.list_clients)
 
         def initiateChat(self, socket, payload):
             to = payload["content"]["username"]
@@ -152,7 +153,7 @@ def get_server_factory(app):
                     print("Could not authenticate")
                     return None
 
-        def sendMessage(self, req):
+        def routeUserMessage(self, req):
             """
             Add message to database and send over socket if user is online
             """

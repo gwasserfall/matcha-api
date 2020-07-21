@@ -25,7 +25,6 @@ from models.user import User
 
 app = Flask(__name__)
 
-
 app.config['JWT_SECRET_KEY'] = 'super-secret'
 app.config['SECRET_KEY'] = 'super-secret'
 app.config['RESTFUL_JSON'] = {"cls": ModelEncoder, "encoding" : "utf-8"}
@@ -80,7 +79,6 @@ from markdown import markdown
 import os
 
 import simplejson as json
-
 
 @app.before_request
 def before_request_func():
