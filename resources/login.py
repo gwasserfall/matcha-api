@@ -1,6 +1,7 @@
 from flask import request
 
 from flask import current_app as app
+from datetime import datetime
 
 from flask_restful import Resource
 from flask_jwt_extended import (
@@ -41,6 +42,12 @@ class LoginResource(Resource):
                     "username" : user.username,
                     "email" : user.email}
             access_token = create_refresh_token(identity=identity)
+            try:
+                user.date_lastseen = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                user.save()
+            except Exception as e:
+                print("Issue with login", e)
+
             return {"access_token" : access_token, "user": get_full_user(user.id)}, 200
 
         else:
