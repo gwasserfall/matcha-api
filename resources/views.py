@@ -33,14 +33,18 @@ class   ViewsListResource(Resource):
 
         user = dict(args)
 
-        viewee = User.get(username=user["viewee_username"])
-
-        view = View({"viewee_id" : viewee.id, "viewer_id" : current_user["id"]})
-
-        if View.get(viewer_id=current_user["id"], viewee_id=viewee.id):
-            return {"message" : "Already viewed."}, 200
-        try:
-            view.save()
-            return {"message" : "Viewed"}, 200
+        try: 
+            viewee = User.get(username=user["viewee_username"])
+            if viewee:
+                view = View({"viewee_id" : viewee.id, "viewer_id" : current_user["id"]})
+                if View.get(viewer_id=current_user["id"], viewee_id=viewee.id):
+                    return {"message" : "Already viewed."}, 200
+                try:
+                    view.save()
+                    return {"message" : "Viewed"}, 200
+                except Exception as e:
+                    return {"message" : str(e)}, 500
+            else:
+                return {"message": "No user found."}, 404
         except Exception as e:
             return {"message" : str(e)}, 500
