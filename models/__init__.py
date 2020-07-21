@@ -6,6 +6,17 @@ from datetime import datetime
 from copy import deepcopy
 from database import pool
 
+
+class Subquery(object):
+    def __init__(self, sql, *args, **kwargs):
+        self.sql = sql
+
+    def __repr__(self):
+        return "<Subquery>"
+
+    def __name__():
+        return "Subquery"
+
 class Field:
     """
     A holder for the value inside a model instance. Allows some restriction
@@ -65,7 +76,6 @@ class Model(object):
     """
 
     """PyMySQL database connection, config.py for settings"""
-    db = None
     pool = pool
 
     """Every model should override this with the correct table name"""
@@ -165,9 +175,29 @@ class Model(object):
             else:
                 raise AttributeError("Field {0} does not exist in Model {1}".format(key, self.__class__.__name__))
 
+
+    """
+    Appends a field to the current instace, usful for adding images to a user model
+    """
     def append_field(self, key, value):
         self.fields[key] = value 
-        #print(self.fields)
+
+
+    """
+    Return the field keys and get any subqueries
+    """
+    def get_columns_and_subqueries(self):
+        columns = []
+        for key, val in self.fields.items():
+            if val.type == Subquery:
+                columns.append(val.value.sql)
+            else:
+                columns.append(key)    
+            #print(f"key = {key}, val = {val}")
+
+        return columns
+        #return self.fields.keys()
+        
 
 
     """
@@ -224,7 +254,7 @@ class Model(object):
         try:
             self.before_save()
         except Exception as e:
-            print("Pre-Save for model", self.table_name, "has failed", str(e))
+            print("Pre-Save for model", self.table_name, "has failed:", str(e))
             raise        
 
         connection = self.pool.get_conn()
@@ -234,6 +264,8 @@ class Model(object):
 
         for name, field in self.fields.items():
             if name == "id" and not field.value:
+                continue
+            if name == "heat":
                 continue
             columns.append(name)
             try:
@@ -247,9 +279,6 @@ class Model(object):
             VALUES
                 ({2})
         """.format(self.table_name, ", ".join(columns), ", ".join(["%s"] * len(values)))
-
-        # print(query)
-        # print(values)
 
         with connection.cursor() as c:
             c.execute(query, tuple(values))
@@ -314,8 +343,12 @@ class Model(object):
             keys = kwargs.keys()
             where = " and ".join(["{0} = %s".format(x) for x in keys])
             with connection.cursor() as c:
-                query = """SELECT {0} FROM {1} WHERE {2}""".format(", ".join(temp.fields.keys()), cls.table_name, where)
-                # with connection.cursor() as c:
+                query = """SELECT 
+                    {0} 
+                FROM 
+                    {1} 
+                WHERE 
+                    {2}""".format(", ".join(temp.get_columns_and_subqueries()), cls.table_name, where)
                 c.execute(query, [kwargs[x] for x in keys])
                 data = c.fetchone()
         else:
@@ -330,7 +363,7 @@ class Model(object):
                     FROM
                         {table}
                     WHERE   {cond}=%s""".format(
-                            fields = ", ".join(temp.fields.keys()),
+                            fields = ", ".join(temp.get_columns_and_subqueries()),
                             table = cls.table_name,
                             cond = key), (val,))
 

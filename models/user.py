@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 
 from pymysql.err import IntegrityError
-from models import Model, Field
+from models import Model, Field, Subquery
 from models.images import Image
 
 from database import pool
@@ -25,7 +25,13 @@ class User(Model):
     dob = Field(datetime)
     longitude = Field(float)
     latitude = Field(float)
-    heat = Field(int)
+    heat = Field(Subquery, Subquery("""
+        (SELECT 
+            IF(COUNT(id) = 0, 3, SUM(rating)) / IF(COUNT(id) = 0, 1, COUNT(id))
+         FROM matches WHERE matchee_id = id and rating > 0) 
+         AS heat
+         """
+        ))
     online = Field(bool)
     date_lastseen = Field(datetime)
     interests = Field(list)

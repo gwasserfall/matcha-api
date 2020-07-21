@@ -1,13 +1,7 @@
-d = {"key" : "value"}
-
-class obj():
-    self.d = "asdasd"
 
 
-    
+
+from pprint import pprint 
 
 
-o = obj()
-
-
-o.d
+pprint(dir("asdasd {asdasd} ASdasd".format()))
