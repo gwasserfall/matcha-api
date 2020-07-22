@@ -63,9 +63,9 @@ class Arguments(object):
 
             if arg.type is str and arg.name is "password":
                 pass
-                # if not verify(value):
-                #     abort(400, message=arg.message or "Password failed minimum complexity requirements.")
-                #     return False
+                if not verify(value):
+                    abort(400, message=arg.message or "Password failed minimum complexity requirements.")
+                    return False
 
             # Check regex only on string
             if arg.type in [str, datetime] and arg.regex and not re.match(arg.regex, str(value)):

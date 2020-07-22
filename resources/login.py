@@ -26,7 +26,7 @@ class LoginResource(Resource):
         """
         args = Arguments(request.json)
         args.string("username", required=True)
-        args.password("password", required=True)
+        args.string("password", required=True)
         args.validate()
 
         if is_email(args.username):

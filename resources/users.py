@@ -25,7 +25,7 @@ class UserListResource(Resource):
         args = Arguments(request.json)
         args.email("email", required=True)
         args.string("username", required=True, min=3, max=255)
-        args.password("password", required=True, max=255)
+        args.string("password", required=True, max=255)
         args.string("fname", required=True, min=1, max=255)
         args.string("lname", required=True, min=1, max=255)
     

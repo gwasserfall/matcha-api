@@ -34,6 +34,7 @@ jobs:
       run: |
         cd /opt/matcha/backend/matcha-api
         docker-compose up -d
+        docker container stop matchaapi_adminer_container_1
 
     - name: Ensure database is up
       run: systemctl start matcha-api
