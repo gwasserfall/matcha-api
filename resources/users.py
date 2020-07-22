@@ -17,17 +17,6 @@ import traceback
 
 class UserListResource(Resource):
 
-    def get(self):
-
-        # Filtering should be here in something
-
-        args = Arguments(request.json)
-        args.date("dob", required=True)
-        args.validate()
-
-        return {"asd" : "asd"}, 200
-
-
     def post(self):
         """
         Posting to userlist = Registration
@@ -36,10 +25,10 @@ class UserListResource(Resource):
         args = Arguments(request.json)
         args.email("email", required=True)
         args.string("username", required=True, min=3, max=255)
-        args.string("password", required=True, max=255)
+        args.password("password", required=True, max=255)
         args.string("fname", required=True, min=1, max=255)
         args.string("lname", required=True, min=1, max=255)
-        #args.string("gender", required=True, enum=genders)
+    
 
         # Validate method will abort with 400 if needed
         args.validate()
@@ -152,7 +141,4 @@ class CurrentUserResource(Resource):
     @jwt_refresh_required
     def get(self):
         current_user = get_jwt_identity()
-
-        print("Getting current user", current_user)
-
         return get_full_user(current_user["id"]), 200 

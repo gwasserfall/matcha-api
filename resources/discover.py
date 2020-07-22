@@ -35,9 +35,6 @@ class MatchList(object):
     def filter_tags(self):
         for match in self.matches:
             
-            # print("user interests", type(self.user.interests), self.user.interests)
-            # print("user interests", type(match["interests"]), match["interests"])
-
             if not self.user.interests or not match["interests"]:
                 match["tags"] = 0
             else:
@@ -60,12 +57,12 @@ class MatchList(object):
 
         self.deserialise()
 
-        # for func in MatchList.__dict__.values():
-        #     try:
-        #         if "filter_" in func.__name__: 
-        #             getattr(self, func.__name__)()
-        #     except AttributeError as e:
-        #         pass
+        for func in MatchList.__dict__.values():
+            try:
+                if "filter_" in func.__name__: 
+                    getattr(self, func.__name__)()
+            except AttributeError as e:
+                pass
 
         return self.matches
 

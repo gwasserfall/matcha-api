@@ -57,13 +57,13 @@ class User(Model):
                             (to_id=%s OR from_id=%s) 
                                 AND 
                             (to_id=%s OR from_id=%s)
-                        ORDER BY id DESC
+                        ORDER BY id
                     
                     """, (self.id, self.id, from_id, from_id))
                 return c.fetchall()
 
         except Exception as e:
-            print(str(e))
+            print("Could not get messages", str(e))
         finally:
             pool.release(connection)
 
@@ -112,26 +112,6 @@ class User(Model):
             self.pool.release(connection)
         else:
             raise Exception("User not in database")
-
-    @staticmethod
-    def get_mini_users(matches):
-        try:
-            connection = pool.get_conn()
-
-            query = ""
-
-        except Exception as e:
-            print("Exception in get_mini_users() method")
-            print(e)
-        finally:
-            pool.release(connection)
-            
-
-def serialise_interests(interests):
-    return ",".join(interests)
-
-def deserialise_interests(interests):
-    return [{"key" : x.strip().lower(), "value" : x.strip()}  for x in interests.split(",")]
 
 
 def get_full_user(user_id):

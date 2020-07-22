@@ -38,8 +38,8 @@ class ValidationRetryResource(Resource):
             if validation:
                 send_validation_email(user, validation.code)
             else:
-                print("Validation not found for user")
+                return {"message" : "Okay"}, 200
         else:
-            print("User not found", email)
+            return {"message" : "Okay"}, 200
 
         return {}, 200

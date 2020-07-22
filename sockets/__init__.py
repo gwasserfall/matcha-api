@@ -2,7 +2,6 @@ import json
 from models.user import User
 from models.matches import Match
 from models.message import Message
-from pprint import pprint
 from twisted.internet import reactor
 from flask_jwt_extended import decode_token
 
@@ -14,26 +13,17 @@ from autobahn.exception import Disconnected
 def get_server_protocol(app):
 
     class MatchaServerProtocol(WebSocketServerProtocol):
-        # def onConnect(self, request):
-        #     print("Client connecting: {0}".format(request.peer))
-
-        # def onOpen(self):
-        #     print("WebSocket connection open.")
 
         def onMessage(self, payload, isBinary):
 
             with app.app_context():
                 if not isBinary:
                     try:
-                        print(f"Payload = {payload}")
                         valid_request = self.factory.authenticated(json.loads(payload), self)
                         if valid_request:
                             self.routeMessage(valid_request)
-                        else:
-                            print("Request is not authenticated, dropping..")
                     except Exception as e:
-                        
-                        print(str(e))
+                        pass
 
         def routeMessage(self, req):
             """
@@ -41,10 +31,7 @@ def get_server_protocol(app):
             """
             method = req.get("method", None)
 
-            print(f"{method} called")
-
             if method == "register":
-                # self.factory.sendPollOnlineRequest()
                 pass
             elif method == "message":
                 self.factory.routeUserMessage(req)
@@ -54,8 +41,7 @@ def get_server_protocol(app):
                 self.factory.initiateChat(self, req)
             elif method == "getMessagesFor":
                 self.factory.sendMessagesFrom(self, req)
-            else:
-                print(f"Unknown method : {method}")
+           
 
 
         def connectionLost(self, reason):
@@ -85,20 +71,18 @@ def get_server_factory(app):
         def __init__(self, url):
             WebSocketServerFactory.__init__(self, url)
             self.online = []
-            self.list_clients()
+            # self.list_clients()
 
-        def list_clients(self):
-            print("Clients")
-            pprint(self.online)
-            reactor.callLater(5, self.list_clients)
+        # def list_clients(self):
+        #     print("Clients")
+        #     pprint(self.online)
+        #     reactor.callLater(5, self.list_clients)
 
         def initiateChat(self, socket, payload):
             to = payload["content"]["username"]
-
-            print(socket.user, "wants to chat to", payload["content"]["username"])
+            #print(socket.user, "wants to chat to", payload["content"]["username"])
 
         def unregister(self, socket):
-            print("Unregister called on server")
             for user in self.online:
                 if socket in user["sockets"]:
                     user["sockets"].remove(socket)
@@ -107,7 +91,7 @@ def get_server_factory(app):
                     self.sendPollOnlineRequest()
             
         def pollOnline(self, socket):
-            print("Poll Online")
+            
             ## TODO check for matches
             payload = {
               "method" : "pollOnlineResponse",
@@ -120,7 +104,7 @@ def get_server_factory(app):
               "method" : "pollOnlineRequest",
               "content" : None
             }
-            print("Sending poll request to all online users")
+
             for user in self.online:
                 for socket in user["sockets"]:
                     try:
@@ -132,8 +116,6 @@ def get_server_factory(app):
             from_user = User.get(username=req["content"]["username"])
 
             messages = from_user.get_messages(req["sender"]["id"])
-
-            print(len(messages), "Is how many messages there are")
 
             payload = {
                 "method" : "receiveMessagesFrom",
@@ -167,8 +149,6 @@ def get_server_factory(app):
                     return req
 
                 except Exception as e:
-                    print("Exception thrown in authenticate", str(e))
-                    print("Could not authenticate")
                     return None
 
         def routeUserMessage(self, req):
@@ -177,7 +157,6 @@ def get_server_factory(app):
             """
             
             to = req["content"].get("to", None)
-            print("sending message to ", to)
             
             to_user = User.get(username=to)
             from_user_id = req["sender"]["id"]
@@ -189,15 +168,8 @@ def get_server_factory(app):
             for client in self.online:
                 if client["username"] == to or client["id"] == to:
                     online = True
-                    payload = {
-                      "method" : "message",
-                      "content" : {
-                        "from" : req["sender"]["username"],
-                        "message" : req["content"]["message"]
-                      }
-                    }
+                    payload = {"method" : "refreshMessages"}
                     for socket in client["sockets"]:
-                        print("Sending message to online user", client["username"])
                         socket.sendMessage(json.dumps(payload).encode("utf8"))
 
             message.seen = online

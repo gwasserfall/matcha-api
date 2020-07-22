@@ -26,7 +26,7 @@ class LoginResource(Resource):
         """
         args = Arguments(request.json)
         args.string("username", required=True)
-        args.string("password", required=True)
+        args.password("password", required=True)
         args.validate()
 
         if is_email(args.username):
@@ -46,7 +46,7 @@ class LoginResource(Resource):
                 user.date_lastseen = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 user.save()
             except Exception as e:
-                print("Issue with login", e)
+                return {"message" : str(e)}, 401
 
             return {"access_token" : access_token, "user": get_full_user(user.id)}, 200
 

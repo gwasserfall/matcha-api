@@ -22,8 +22,6 @@ class   BlocksResource(Resource):
         current_user = get_jwt_identity()
         blocked = BlockRequest.check_blocked(current_user["id"], username)
 
-        print(blocked)
-
         return blocked or {"blocked_them" : False, "blocked_them" : False}, 200
 
 class   BlockRequestsListResource(Resource):

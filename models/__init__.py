@@ -192,11 +192,9 @@ class Model(object):
             if val.type == Subquery:
                 columns.append(val.value.sql)
             else:
-                columns.append(key)    
-            #print(f"key = {key}, val = {val}")
+                columns.append(key)
 
         return columns
-        #return self.fields.keys()
         
 
 
@@ -298,7 +296,6 @@ class Model(object):
 
         if data:
             for k, v in data.items():
-                #print(f"updating {k} to {v}")
                 self[k] = v
         else:
             raise Exception("Nothing to update")

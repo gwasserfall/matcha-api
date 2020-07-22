@@ -1,7 +1,6 @@
 from database import pool
 from datetime import datetime
 from random import random, randint, choice, choices
-from pprint import pprint
 
 from helpers.genders import genders
 from sample.bio import bios

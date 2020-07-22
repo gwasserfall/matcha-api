@@ -19,6 +19,16 @@ from helpers.model_encoder import ModelEncoder
 from helpers import jwt_refresh_required
 from sockets import get_server_factory, get_server_protocol
 
+
+import os
+import sys
+import ast
+import simplejson as json
+from markdown import markdown
+from database import pool
+from time import sleep
+
+
 from resources import *
 
 from models.user import User
@@ -74,68 +84,49 @@ api.add_resource(ViewedByListResource, "/views/viewed-by")
 
 api.add_resource(UnmatchResource, "/unmatch/<int:user_id>")
 
-import ast
-from markdown import markdown
-import os
 
-import simplejson as json
+# @app.route("/all-users")
+# def get_users():
+#     data = []
+#     connection = pool.get_conn()
+#     with connection.cursor() as c:
+#         c.execute("select id, fname, lname, latitude, longitude from users")
+#         data = c.fetchall()
 
-@app.before_request
-def before_request_func():
-    print("Before Request : DB Connections =", pool.get_pool_size())
+#     pool.release(connection)
+#     return jsonify(data)
 
-@app.after_request
-def after_request_func(response):
-    print("After Request : DB Connections =", pool.get_pool_size())
-    return response
-
-
-@app.route("/all-users")
-def get_users():
-    data = []
-    connection = pool.get_conn()
-    with connection.cursor() as c:
-        c.execute("select id, fname, lname, latitude, longitude from users")
-        data = c.fetchall()
-
-    pool.release(connection)
-    return jsonify(data)
-
-@app.route("/test")
-def test():
-    return render_template("index.html")
+# @app.route("/test")
+# def test():
+#     return render_template("index.html")
 
 
-@app.route("/")
-def documentation():
+# @app.route("/")
+# def documentation():
 
-    docs = []
+#     docs = []
 
-    for py in [os.path.join("resources", x) for x in os.listdir("resources") if "__" not in x and x.endswith("py")]:
-        with open(py) as f:
-            code = ast.parse(f.read())
+#     for py in [os.path.join("resources", x) for x in os.listdir("resources") if "__" not in x and x.endswith("py")]:
+#         with open(py) as f:
+#             code = ast.parse(f.read())
 
-        for node in ast.walk(code):
-            if isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.Module)):
-                docstring = ast.get_docstring(node)
-                if docstring:
+#         for node in ast.walk(code):
+#             if isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.Module)):
+#                 docstring = ast.get_docstring(node)
+#                 if docstring:
 
-                    endpoint = docstring.split("\n")[0]
-                    md = "\n".join(docstring.split("\n")[1:])
+#                     endpoint = docstring.split("\n")[0]
+#                     md = "\n".join(docstring.split("\n")[1:])
                     
-                    docs.append(
-                      {
-                        "endpoint" : endpoint,
-                        "docstring" : markdown(md, extensions=['fenced_code', 'attr_list'])
-                      }
-                    )
-    return render_template("api-docs.html", docs=docs)
+#                     docs.append(
+#                       {
+#                         "endpoint" : endpoint,
+#                         "docstring" : markdown(md, extensions=['fenced_code', 'attr_list'])
+#                       }
+#                     )
+#     return render_template("api-docs.html", docs=docs)
 
-from database import pool
 
-from time import sleep
-
-import sys
 
 
 def shutdown_server():
