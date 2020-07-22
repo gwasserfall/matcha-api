@@ -30,8 +30,8 @@ class View(Model):
                 FROM views v
                 INNER JOIN users u
                 ON v.viewer_id = u.id
-                WHERE v.viewee_id = %s
-            """, (date_format, user_id,))
+                WHERE v.viewee_id = %s AND v.viewer_id <> %s
+            """, (date_format, user_id, user_id))
             pool.release(connection)
             return c.fetchall()
         pool.release(connection)
@@ -54,8 +54,8 @@ class View(Model):
                 FROM views v
                 INNER JOIN users u
                 ON v.viewee_id = u.id
-                WHERE v.viewer_id = %s
-            """, (date_format, user_id,))
+                WHERE v.viewer_id = %s AND v.viewee_id <> %s
+            """, (date_format, user_id, user_id))
             pool.release(connection)
             return c.fetchall()
         pool.release(connection)

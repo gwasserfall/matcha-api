@@ -51,4 +51,4 @@ class LoginResource(Resource):
             return {"access_token" : access_token, "user": get_full_user(user.id)}, 200
 
         else:
-            return {"message" : "Failed to authenticate"}, 401
+            return {"message" : "Failed to authenticate."}, 401
