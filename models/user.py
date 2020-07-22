@@ -28,7 +28,7 @@ class User(Model):
     heat = Field(Subquery, Subquery("""
         (SELECT 
             IF(COUNT(id) = 0, 3, SUM(rating)) / IF(COUNT(id) = 0, 1, COUNT(id))
-         FROM matches WHERE matchee_id = id and rating > 0) 
+         FROM matches WHERE matchee_id = users.id and rating > 0) 
          AS heat
          """
         ))
@@ -46,6 +46,27 @@ class User(Model):
     def hash_password(self, password):
         salt = uuid.uuid4().hex
         return hashlib.sha256(salt.encode() + password.encode()).hexdigest() + ':' + salt
+
+    def get_messages(self, from_id):
+        try:
+            connection = pool.get_conn()
+
+            with connection.cursor() as c:
+                c.execute("""SELECT * FROM messages 
+                        WHERE 
+                            (to_id=%s OR from_id=%s) 
+                                AND 
+                            (to_id=%s OR from_id=%s)
+                        ORDER BY id DESC
+                    
+                    """, (self.id, self.id, from_id, from_id))
+                return c.fetchall()
+
+        except Exception as e:
+            print(str(e))
+        finally:
+            pool.release(connection)
+
 
     def check_password(self, password):
         _hash, salt = self.passhash.split(':')

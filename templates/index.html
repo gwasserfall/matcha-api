@@ -4,48 +4,53 @@
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+   <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC7ObslXkvGIXZaWS5YMTkYZb0djIRifoE&callback=initMap&libraries=&v=weekly"
+      defer
+    ></script>
    <title>Document</title>
 </head>
 <body>
-   
+   <style type="text/css">
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+
+      /* Optional: Makes the sample page fill the window. */
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
    <script type="text/javascript">
-      var sock = null;
+   var map;
+      function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+         center: { lat: 33.9249, lng: 18.4241 },
+         zoom: 8
+      });
 
-      window.onload = function() {
+      axios.get("/all-users").then(resp => {
+         console.log(resp)
+         resp.data.forEach(user => {
+            new google.maps.Marker({
+               position: { lat: user.latitude, lng: user.longitude },
+               map: map,
+               title: `${user.fname} ${user.lname}  ${user.latitude} ${user.longitude}`
+            });
+         })
+      })
 
-         ellog = document.getElementById('log');
 
-         var wsuri;
-         if (window.location.protocol === "file:") {
-            wsuri = "ws://127.0.0.1:5000/ws";
-         } else {
-            wsuri = "ws://" + window.location.hostname + ":5000/ws";
-         }
 
-         if ("WebSocket" in window) {
-            sock = new WebSocket(wsuri);
-         } else if ("MozWebSocket" in window) {
-            sock = new MozWebSocket(wsuri);
-         } else {
-            console.log("Browser does not support WebSocket!");
-         }
-
-         if (sock) {
-            sock.onopen = function() {
-               console.log("Connected to " + wsuri);
-            }
-
-            sock.onclose = function(e) {
-               console.log("Connection closed (wasClean = " + e.wasClean + ", code = " + e.code + ", reason = '" + e.reason + "')");
-               sock = null;
-            }
-
-            sock.onmessage = function(e) {
-               console.log("Got echo: " + e.data);
-            }
-         }
-      };
-
+      }
    </script>
+   <div id="map"></div>
 </body>
 </html>

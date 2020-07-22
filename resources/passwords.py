@@ -11,17 +11,6 @@ from helpers.email import send_password_reset_email
 
 class PasswordResetRequestResource(Resource):
     def post(self):
-        """
-        GET : /v1/somthing
-
-        ```json
-          [
-
-          ]
-        ```
-
-
-        """
         args = Arguments(request.json)
         args.email("email", required=True)
         args.validate()
@@ -58,8 +47,7 @@ class PasswordChangeResource(Resource):
                 return {"message": "Unauthorised code"}, 401
 
         else:
-            print("args.previous_password = ", args.previous_password)
-            if args.user_id == "":
+            if args.user_id == "" or args.user_id == "None":
                 return {"message": "User Id is required"}, 400
 
             if not args.previous_password:

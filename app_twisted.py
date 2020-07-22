@@ -90,13 +90,20 @@ def after_request_func(response):
     return response
 
 
+@app.route("/all-users")
+def get_users():
+    data = []
+    connection = pool.get_conn()
+    with connection.cursor() as c:
+        c.execute("select id, fname, lname, latitude, longitude from users")
+        data = c.fetchall()
+
+    pool.release(connection)
+    return jsonify(data)
+
 @app.route("/test")
 def test():
-    user = User.get(id=1)
-    response = make_response(json.dumps(user, default=ModelEncoder().default))
-    response.headers['Content-Type'] = 'application/json'
-    
-    return response
+    return render_template("index.html")
 
 
 @app.route("/")

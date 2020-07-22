@@ -1,7 +1,10 @@
 
+from database import pool
+pool.init()
+from models.user import User
 
 
-from pprint import pprint 
 
+user = User.get(id=501)
 
-pprint(dir("asdasd {asdasd} ASdasd".format()))
+print(user.check_password("Password1"))

@@ -1,9 +1,11 @@
 import json
 from models.user import User
 from models.matches import Match
+from models.message import Message
 from pprint import pprint
 from twisted.internet import reactor
 from flask_jwt_extended import decode_token
+
 
 from autobahn.twisted.websocket import WebSocketServerFactory, WebSocketServerProtocol
 from autobahn.exception import Disconnected
@@ -12,11 +14,11 @@ from autobahn.exception import Disconnected
 def get_server_protocol(app):
 
     class MatchaServerProtocol(WebSocketServerProtocol):
-        def onConnect(self, request):
-            print("Client connecting: {0}".format(request.peer))
+        # def onConnect(self, request):
+        #     print("Client connecting: {0}".format(request.peer))
 
-        def onOpen(self):
-            print("WebSocket connection open.")
+        # def onOpen(self):
+        #     print("WebSocket connection open.")
 
         def onMessage(self, payload, isBinary):
 
@@ -30,7 +32,7 @@ def get_server_protocol(app):
                         else:
                             print("Request is not authenticated, dropping..")
                     except Exception as e:
-                        print("asdasdasd")
+                        
                         print(str(e))
 
         def routeMessage(self, req):
@@ -50,15 +52,15 @@ def get_server_protocol(app):
                 self.factory.pollOnline(self)
             elif method == "initChat":
                 self.factory.initiateChat(self, req)
+            elif method == "getMessagesFor":
+                self.factory.sendMessagesFrom(self, req)
             else:
                 print(f"Unknown method : {method}")
 
 
         def connectionLost(self, reason):
-            print("Connection lost for reason:", reason)
             WebSocketServerProtocol.connectionLost(self, reason)
             self.factory.unregister(self)
-            #self.factory.sendPollOnlineRequest()
             
 
         def __repr__(self):
@@ -126,6 +128,22 @@ def get_server_factory(app):
                     except Disconnected:
                         pass
 
+        def sendMessagesFrom(self, socket, req):
+            from_user = User.get(username=req["content"]["username"])
+
+            messages = from_user.get_messages(req["sender"]["id"])
+
+            print(len(messages), "Is how many messages there are")
+
+            payload = {
+                "method" : "receiveMessagesFrom",
+                "content" : {
+                    "messages" : messages
+                }
+            }
+            socket.sendMessage(json.dumps(payload, default=str).encode("utf8"))
+            pass
+
         def authenticated(self, req, socket):
             with app.app_context():
                 try:
@@ -157,11 +175,20 @@ def get_server_factory(app):
             """
             Add message to database and send over socket if user is online
             """
-            print("Message Request", req)
+            
             to = req["content"].get("to", None)
+            print("sending message to ", to)
+            
+            to_user = User.get(username=to)
+            from_user_id = req["sender"]["id"]
+
+            online = False
+
+            message = Message(to_id=to_user.id, from_id=from_user_id, message=req["content"]["message"])
+
             for client in self.online:
                 if client["username"] == to or client["id"] == to:
-                # Client is online
+                    online = True
                     payload = {
                       "method" : "message",
                       "content" : {
@@ -172,5 +199,9 @@ def get_server_factory(app):
                     for socket in client["sockets"]:
                         print("Sending message to online user", client["username"])
                         socket.sendMessage(json.dumps(payload).encode("utf8"))
+
+            message.seen = online
+            message.save()
+
 
     return MatchaServerFactory
