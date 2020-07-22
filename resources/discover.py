@@ -91,8 +91,6 @@ class DiscoveryListResource(Resource):
 
         connection = pool.get_conn()
 
-        user.dump_fields()
-
         query = """
             SELECT
             users.id as id,

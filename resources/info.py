@@ -22,4 +22,4 @@ class InterestsListResource(Resource):
             c.execute("""SELECT GROUP_CONCAT(interests SEPARATOR ',') AS interests FROM users WHERE interests <> ''""")
             interests = c.fetchone().get("interests", "")
         pool.release(connection)
-        return {"interests" : interests.split(",") if interests != "" else []}, 200
+        return {"interests" : list(set(interests.split(","))) if interests != "" else []}, 200

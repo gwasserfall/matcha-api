@@ -142,7 +142,6 @@ class UserResource(Resource):
         user.update(args.user)
 
         try:
-            #print(user.dump_fields())
             user.save()
             return {"message": "User updated"}, 200
         except Exception as e:
