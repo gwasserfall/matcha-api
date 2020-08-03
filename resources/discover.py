@@ -40,8 +40,11 @@ class MatchList(object):
             else:
                 match["tags"] = len([x for x in self.user.interests if x in match["interests"]])
             
-            if match["tags"] < self.tags_min:
-                self.matches.remove(match)
+            try:
+                if match["tags"] < int(self.tags_min):
+                    self.matches.remove(match)
+            except Exception:
+                pass
 
 
     def deserialise(self):

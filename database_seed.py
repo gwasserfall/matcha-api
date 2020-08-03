@@ -12,19 +12,23 @@ import requests
 pool.init()
 
 
-connection = pool.get_conn()
+# connection = pool.get_conn()
+
+# with connection.cursor() as c:
+#     print("Truncating tables")
+#     c.execute("TRUNCATE TABLE block_requests")
+#     c.execute("TRUNCATE TABLE images")
+#     c.execute("TRUNCATE TABLE matches")
+#     c.execute("TRUNCATE TABLE messages")
+#     c.execute("TRUNCATE TABLE users")
+#     c.execute("TRUNCATE TABLE views")
+current_id = 1
 
 with connection.cursor() as c:
-    print("Truncating tables")
-    c.execute("TRUNCATE TABLE block_requests")
-    c.execute("TRUNCATE TABLE images")
-    c.execute("TRUNCATE TABLE matches")
-    c.execute("TRUNCATE TABLE messages")
-    c.execute("TRUNCATE TABLE users")
-    c.execute("TRUNCATE TABLE views")
+    
 
 
-current_id = 1
+    
 r = requests.get("https://randomuser.me/api/?nat=gb,us&results=500")
 
 
