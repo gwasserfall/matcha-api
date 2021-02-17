@@ -12,7 +12,7 @@ import requests
 pool.init()
 
 
-# connection = pool.get_conn()
+connection = pool.get_conn()
 
 # with connection.cursor() as c:
 #     print("Truncating tables")
@@ -24,7 +24,7 @@ pool.init()
 #     c.execute("TRUNCATE TABLE views")
 current_id = 1
 
-with connection.cursor() as c:
+# with connection.cursor() as c:
     
 
 

@@ -8,10 +8,10 @@ from pprint import pprint
 conf = copy.deepcopy(config.database)
 conf.pop("db", None)
 
-with pymysql.connect(**conf) as db:
-    db._defer_warnings = True
-    db.execute("CREATE DATABASE IF NOT EXISTS matcha")
-    print("Creating database 'matcha' if it doesn't exist")
+# with pymysql.connect(**conf) as db:
+#     db._defer_warnings = True
+#     db.execute("CREATE DATABASE IF NOT EXISTS matcha")
+#     print("Creating database 'matcha' if it doesn't exist")
 
 
 db = pymysql.connect(**config.database)

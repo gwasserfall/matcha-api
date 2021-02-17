@@ -15,7 +15,7 @@ WEBHOOK_SECRET=somesecretthatisnotthisstringoftext
 Install backend python libraries and start dev server.
 
 ```
-pip3 -r requirements.txt
+pip3 install -r requirements.txt
 
 # Ensure MySQL is up and running.
 
